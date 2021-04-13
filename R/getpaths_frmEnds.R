@@ -14,9 +14,9 @@
 #' If no pathways are found or the gene is present in pathways but is not an end-point, the function
 #' will inform the user and will return nothing.
 #'
-#' @param gene character (Entrez ID)
+#' @param gene character or numeric (Entrez ID)
 #'
-#' @example
+#' @examples
 #' ## Search for pathways in KEGG which have IL18 as an end-point.
 #' getpaths_frmEnds(3606)
 getpaths_frmEnds = function(gene_entrez){

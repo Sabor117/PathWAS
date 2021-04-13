@@ -7,7 +7,7 @@
 getpaths_frmEnds(gene_entrez)
 }
 \arguments{
-\item{gene}{character (Entrez ID)}
+\item{gene}{character or numeric (Entrez ID)}
 }
 \description{
 getpaths_frmEnds returns a list of (KEGG) pathways from an input gene end-point.
@@ -22,4 +22,8 @@ edges.
 These pathways are those which are passed to return()
 If no pathways are found or the gene is present in pathways but is not an end-point, the function
 will inform the user and will return nothing.
+}
+\examples{
+## Search for pathways in KEGG which have IL18 as an end-point.
+getpaths_frmEnds(3606)
 }
