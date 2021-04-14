@@ -118,7 +118,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     heading("Tissue genelist exists. Reading it now.")
 
-    ### Instead of creating list - simply reads in data frame of combinations
+    ### Instead of creating list - simply reads in data frame of combinations
 
     all_tissue_genes = fread(paste0(genelistDir, gene, "_", pathway, "_genelist.txt"),
                              data.table = FALSE)

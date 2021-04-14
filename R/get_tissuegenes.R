@@ -1,11 +1,43 @@
-get_tissuegenes = function(exprn_data, in_genelist, all_simple_paths, in_tissue = NULL){
+#' Obtain a tissue-specific list of genes for a pathway
+#'
+#' @description
+#' Returns a series of gene lists for either all tissues in the GTEx transcriptomics dataset or for a specific tissue.
+#'
+#' @details
+#' This is a higher level function for creating one or multiple gene-lists for tissue-specific expression of genes. This is based on
+#' the GTEx Transcripts Per Million data (which can be found here:
+#' https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz).
+#' From this data we define a threshold (default = 1) constituting "above basal expression" of the gene. Any gene above this threshold
+#' is considered to be "expressed" in the defined tissue. The function then uses the linear paths provided from the smple_paths function and
+#' excludes any simple path which has at one or more genes with an expression level below the defined threshold (under the assumption
+#' that with one of the links in the chain missing, this is no longer a viable route for pathway functionality). Thus the output from this
+#' is not just only the genes which are expressed in a specific tissue, but also theoretically will exclude those genes which can only
+#' influence the desired end-point through genes which are defined as not being expressed within that tissue.
+#'
+#' This function requires several inputs. It requires the GTEx TPM files, the input gene-list must come in the format of a column with
+#' kegg_id (this can be updated to be ENTREZ IDs) and external_gene_name (from BioMart). It also requires the output from smple_paths()
+#' under the assumption of having kept the connections between each gene and not just the names of the genes.
+#'
+#' There default running option for this function provides the gene list for all tissues in the GTEx TPM files, however individual tissues
+#' can be selected. There is currently no option for selecting multiple or a list of tissues (this may be updated down the line).
+#'
+#' @param exprn_data data frame. The GTEx TPM file having been read in as a data frame.
+#' @param in_genelist data frame. A table of all genes in the pathway including a column with kegg_id (hsa:<ENTREZ>) and external_gene_name (gene name) as defined by BioMart
+#' @param all_simple_paths list. The list of all "simple" linear paths through a pathway to a chosen end-point.
+#' @param in_tissue character. Either NULL (and output a gene list for all tissues in GTEx) or a single specific tissue (the name must match the file names for the tissue in GTEx).
+#' @param tpm_threshold numeric. Threshold defining whether a gene is expressed or not. Default = 1
+get_tissuegenes = function(exprn_data,
+                           in_genelist,
+                           all_simple_paths,
+                           in_tissue = NULL,
+                           tpm_threshold = 1){
 
   cat(paste0("Obtaining tissue-specific gene lists.\n"))
   cat("The Black Knight ALWAYS triumphs.\n\n")
 
   ### Subset all GTEx TPMs by pathway genelist
 
-  pathway_genes_tissues = exprn_data[exprn_data$Description %in% in_genelist$hgnc_symbol,]
+  pathway_genes_tissues = exprn_data[exprn_data$Description %in% in_genelist$external_gene_name,]
 
   ### In order to change row names to gene names - necessary to remove duplicate gene names
 
@@ -23,7 +55,7 @@ get_tissuegenes = function(exprn_data, in_genelist, all_simple_paths, in_tissue 
   ### Convert data.frame to matrix
 
   tissue_present = as.matrix(pathway_genes_tissues)
-  tissue_present = matrix(as.numeric(tissue_present >= 1), ### converts all values less than 1 into 0
+  tissue_present = matrix(as.numeric(tissue_present >= tpm_threshold), ### converts all values less than 1 into 0
                           nrow = nrow(pathway_genes_tissues), ### based on number of rows of original dataframe
                           byrow = F) ### dunno why
 
@@ -69,7 +101,7 @@ get_tissuegenes = function(exprn_data, in_genelist, all_simple_paths, in_tissue 
   ### KEGG IDs changed to HGNC symbols to match other matrix
   ### Based on genelist
 
-  collist = in_genelist$hgnc_symbol[which(colnames(simple_paths_matrix) == in_genelist$kegg_id)]
+  collist = in_genelist$external_gene_name[which(colnames(simple_paths_matrix) == in_genelist$kegg_id)]
   colnames(simple_paths_matrix) = collist
 
   ### Column order (I.e. genes) changed to match order of other matrix
