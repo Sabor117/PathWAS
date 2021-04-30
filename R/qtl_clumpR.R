@@ -1,3 +1,56 @@
+#' Clump QTL SNPs based on gene
+#'
+#' @description qtl_clumpR returns two outputs: a compiled data frame of SNPs for a given pathway along with selected clumped SNPs
+#'
+#' @details This function takes as an input several large data frames. You must input a data frame of your QTLs
+#' (e.g. qQTLs/pQTLs) and also a list of your genes for your pathway.
+#' This can optionally be filtered to only include significant QTLs/eGenes (and we recommemnd this).
+#'
+#' The QTLs must (for this function) at minimum include 4 columns:
+#' rsid column - e.g. rs1234.
+#' snpid column - a unique identifier for every SNP. We suggest the format "chromosome:position_a1_a2" but this is
+#' not compulsory.
+#' p - the QTL p-value for each SNP.
+#' gene - each SNP must be labeled according to which gene it is a QTL for. Many eQTL data sets use Ensembl IDs as
+#' a default. The name of this column can be chosen as a variable of the function.
+#'
+#' SNPs should be included for every gene available in the pathway. Where SNPs overlap between genes, this
+#' function will select said SNP only once based on the lowest QTL p-value.
+#'
+#' You must also include a BioMart file (from https://www.ensembl.org/biomart/martview/ or using package biomaRt)
+#' in order to convert the gene names between the names used in the QTLs and Entrez (KEGG) gene IDs.
+#'
+#' The clumping is performed using the package ieugwasr (https://rdrr.io/github/MRCIEU/ieugwasr/).
+#' This requires access to a locally installed version of plink and access to a reference genotype
+#' in plink format (I.e. bed/bim/fam).
+#'
+#' For the requirement of a reference genotype you should input the location of the files + the prefix of your
+#' plink files (e.g. if you have /opt/data/reference/cohort_new_allchr.bed,
+#' /opt/data/reference/cohort_new_allchr.bim, cohort_new_allchr.fam use
+#' bfile = "/opt/data/reference/cohort_new_allchr"). If your plink files are divided by chromosome
+#' (e.g. cohort_new_chr1.bed : cohort_new_chr2.bed) then input the prefix with "%%%" replacing the
+#' chromosome number: bfile = "/opt/data/reference/cohort_new_chr%%%"
+#'
+#' This function will output (as a list) two things: the filtered data frame of all the QTL SNPs for the pathway
+#' and a data frame of the clumped SNPs (usually only a few per locus).
+#'
+#' @param end_point character. Name of gene in HGNC format (or equivalent). Required for excluding the gene from
+#' the list of QTls used.
+#' @param path_select character. Name of pathway. Format is irrelevant, only used for aesthetics purposes.
+#' @param biomart_map data frame. Data frame of gene names including at least entrezgene_id, external_gene_name
+#' and whatever format of gene name is used in the QTLs (e.g. Ensembl ID).
+#' @param all_snps data frame. All SNPs for QTLs to be filtered in analysis. May be significant QTLs only.
+#' @param all_snps_genecol character or numeric. Name of the column containing the gene name from the QTLs in all_snps. Default is
+#' "gene_ensembl" as many QTL datasets tend to use Ensembl IDs of some description. Can also be the number of the
+#' column containing the gene names.
+#' @param qtl_gene_identifier character or numeric. Equivalent naming format from the SNPs in the BioMart map. E.g.
+#' if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from BioMart.
+#' @param tissue character. Deprecated variable, for use when running through the functions of the pipeline
+#' used for selecting the genes involved with tissues filtered by GTEx TPMs (default is "Complete" I.e. the
+#' complete pathway)
+#' @param bfile character. Location of the Plink files of your reference genotype.
+#' @param plink_bin character. Location of the local version of the plink executable.
+#'
 qtl_clumpR = function(end_point, path_select,
                         path_gene_list,
                         biomart_map,
