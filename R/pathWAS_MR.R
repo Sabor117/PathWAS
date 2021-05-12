@@ -1,7 +1,52 @@
-pathWAS_MR = function(path_snplist,
+#' Conduct Mendelian randomisation of clumped SNPs from pathway genes on end-point omics
+#'
+#' @description
+#' Inputs aqnd combines aspects from your QTL SNPs, clumped SNPs, pathway genes, and omics summary
+#' stats (plus flip status) and conducts MR between these, outputting the MR for model.
+#'
+#' @details
+#' This function requires the input of numerous pieces of data from throughout the PathWAS pipeline. The list
+#' of genes (acquired from searching for the pathway genes) is needed to select specific QTL SNPs for conducting
+#' the MR. A data frame containing the SNPs produced by clumping (qtl_clumpR) is needed for pruning the QTLs by
+#' clumped SNPs. A file location of the data frame of your QTL SNPs including a column with the named gene which must match the format
+#' of the input gene list (I.e. HGNC format), this can either be the total available sumstats or can point to
+#' multiple files divided up by gene. This should also include all SNPs for every gene and not just significant ones.
+#' Lastly the data frame of your end-point omics. This must have first been through the omics_MungeR function
+#' to add the "FLIP" column (you will now also be required to define columns for the effect size and standard error).
+#' The QTL file location can either be a total file of all genes and SNPs in your data, or it can be individual
+#' files divided up by gene (for easier/quicker reading). If it is the latter, then the file name must be in the
+#' following format: "/opt/dir/eqtl_data_$$$.tsv" where "$$$" will be the name of one of the gene.
+#' With all of this provided this function first creates two matrices of SNPs which overlap between the clumped
+#' SNPs and the QTL SNPs. This will provide a matrix of SNPs against genes and provide the standard error and beta
+#' of each. In the cases where there is no data for the clumped SNP for one of the genes, the standard error and
+#' beta are both set to extremely low (1 and 0.0000001 respectively).
+#' These matrices are used as the input for mr_mvinput from the MendelianRandomization R package (which is required
+#' to run this function). This function also requires the betas and SEs from the omics SNPs, with the betas now
+#' aligned to the QTLs using the newly created "FLIP" column.
+#' The mr_mvinput function creates an output specifically for use by the mr_mvlasso function which is then used
+#' to run the MR of the QTL SNPs against the omics SNPs. Any of the exposures (I.e. genes) which then have an individual P-value of < 0.05 are considered to be significant
+#' exposures within this model. The function will then return both the output from mr_mvlasso and the list of
+#' significant exposures (this is used for downstream filtering).
+#' Additionally, the option has been provided to save the output at multiple stages of the analysis so that they
+#' can be examined individually. The MR lasso input and output can be saved, along with the genes which are
+#' actually used to create the model. If you would like to save these you have to define a location where you
+#' wish the output RDS file to be saved. You also have to input a name for the end-point and pathway (only used
+#' for file-naming purposes).
+#'
+#' @param genelist list. List of genes extracted from database for your pathway which overlap with your QTL data.
+#' @param clumped_snps data frame. The data frame of clumped SNPs output from qtl_clumpR.
+#' @param qtl_sumstats character. File location for the QTLs used (either divided by gene or complete data).
+#' @param geneCol character. Name or number of column containing the name of the gene for each SNP in the QTL data. Default is "gene"
+#' @param omics_snps data frame. Summary stats of end-point omcis, now including FLIP column frm omics_MungeR
+#' @param omics_SNPCol character. Name/number of column containing the SNP ID in the omics data frame.
+#' @param omics_BetaCol character. Name/number of column containing the effect size in the omics data frame.
+#' @param omics_SECol character. Name/number of column containing the standard error in the omics data frame.
+#'
+#'
+pathWAS_MR = function(genelist,
                          clumped_snps,
                          qtl_sumstats,
-                         geneCol = NULL,
+                         geneCol = "gene",
                          omics_snps,
                          omics_SNPCol= "rsid", omics_BetaCol = "beta1", omics_SECol = "se",
                          end_point = NULL, path_select = NULL,
@@ -13,8 +58,11 @@ pathWAS_MR = function(path_snplist,
                          save_MRExpsLoc = NULL
                         ) {
 
+  require(MendelianRandomization)
+  require(data.table)
+
   clumped_snplist = clumped_snps$rsid
-  path_cohort_ovgenes = unique(path_snplist$gene)
+  path_cohort_ovgenes = unique(genelist)
 
   snp_beta_matrix = data.frame(matrix(vector(), 0, length(path_cohort_ovgenes),
                                       dimnames = list(c(), path_cohort_ovgenes)),
