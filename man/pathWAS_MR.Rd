@@ -13,14 +13,14 @@ pathWAS_MR(
   omics_SNPCol = "rsid",
   omics_BetaCol = "beta1",
   omics_SECol = "se",
-  end_point = NULL,
-  path_select = NULL,
   save_MRInput = FALSE,
   save_MRInLoc = NULL,
   save_MROutput = FALSE,
   save_MROutLoc = NULL,
   save_MRExps = FALSE,
-  save_MRExpsLoc = NULL
+  save_MRExpsLoc = NULL,
+  end_point = NULL,
+  path_select = NULL
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ pathWAS_MR(
 
 \item{qtl_sumstats}{character. File location for the QTLs used (either divided by gene or complete data).}
 
-\item{geneCol}{character. Name or number of column containing the name of the gene for each SNP in the QTL data. Default is "gene"}
+\item{geneCol}{character. Name or number of column containing the name of the gene for each SNP in the QTL data. Default is "gene". Ensure the format of the name is the same as your gene list.}
 
 \item{omics_snps}{data frame. Summary stats of end-point omcis, now including FLIP column frm omics_MungeR}
 
@@ -39,6 +39,22 @@ pathWAS_MR(
 \item{omics_BetaCol}{character. Name/number of column containing the effect size in the omics data frame.}
 
 \item{omics_SECol}{character. Name/number of column containing the standard error in the omics data frame.}
+
+\item{save_MRInput}{logical. Should the function save the input for the MR? Default is FALSE}
+
+\item{save_MRInLoc}{character. If save_MRInput == TRUE, then provide a directory to save the .rds file to.}
+
+\item{save_MROutput}{logical. Should the function save the output from the MR (as well as output it from the function)?}
+
+\item{save_MROutLoc}{logical. If save_MROutput == TRUE, then provide a directory to save the .rds file to.}
+
+\item{save_MRExps}{logical. Should the function save the list of gene exposures from the MR (as well as output it from the function)?}
+
+\item{save_MRExpsLoc}{logical. If save_MRExps == TRUE, then provide a directory to save the .rds file to.}
+
+\item{end_point}{character. Name of end point protein (can be any string). Used for saving purposes if any save variable is set to TRUE.}
+
+\item{path_select}{character. Name of pathway (can be any string). Used for saving purposes if any save variable is set to TRUE.}
 }
 \description{
 Inputs aqnd combines aspects from your QTL SNPs, clumped SNPs, pathway genes, and omics summary
@@ -72,4 +88,10 @@ can be examined individually. The MR lasso input and output can be saved, along 
 actually used to create the model. If you would like to save these you have to define a location where you
 wish the output RDS file to be saved. You also have to input a name for the end-point and pathway (only used
 for file-naming purposes).
+}
+\examples{
+## Havimg created a list of genes, clumped SNPs and munged your Omics SNPs you can input them in the following way, along with adding the option to save the MR output:
+pathWAS_MR(genelist, clumped_snps, qtl_sumstats = "/opt/localdir/gene_qtls/file1_sumstats_$$$.tsv", geneCol = "gene_ensembl", omics_snps, save_MROutput = TRUE, save_MROutLoc = "/opt/localdir/mr_outputs/", path_select = "nod_signalling", end_point = "IL18")
+
+
 }

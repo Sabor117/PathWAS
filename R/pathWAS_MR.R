@@ -36,11 +36,23 @@
 #' @param genelist list. List of genes extracted from database for your pathway which overlap with your QTL data.
 #' @param clumped_snps data frame. The data frame of clumped SNPs output from qtl_clumpR.
 #' @param qtl_sumstats character. File location for the QTLs used (either divided by gene or complete data).
-#' @param geneCol character. Name or number of column containing the name of the gene for each SNP in the QTL data. Default is "gene"
+#' @param geneCol character. Name or number of column containing the name of the gene for each SNP in the QTL data. Default is "gene". Ensure the format of the name is the same as your gene list.
 #' @param omics_snps data frame. Summary stats of end-point omcis, now including FLIP column frm omics_MungeR
 #' @param omics_SNPCol character. Name/number of column containing the SNP ID in the omics data frame.
 #' @param omics_BetaCol character. Name/number of column containing the effect size in the omics data frame.
 #' @param omics_SECol character. Name/number of column containing the standard error in the omics data frame.
+#' @param save_MRInput logical. Should the function save the input for the MR? Default is FALSE
+#' @param save_MRInLoc character. If save_MRInput == TRUE, then provide a directory to save the .rds file to.
+#' @param save_MROutput logical. Should the function save the output from the MR (as well as output it from the function)?
+#' @param save_MROutLoc logical. If save_MROutput == TRUE, then provide a directory to save the .rds file to.
+#' @param save_MRExps logical. Should the function save the list of gene exposures from the MR (as well as output it from the function)?
+#' @param save_MRExpsLoc logical. If save_MRExps == TRUE, then provide a directory to save the .rds file to.
+#' @param end_point character. Name of end point protein (can be any string). Used for saving purposes if any save variable is set to TRUE.
+#' @param path_select character. Name of pathway (can be any string). Used for saving purposes if any save variable is set to TRUE.
+#'
+#' @examples
+#' ## Havimg created a list of genes, clumped SNPs and munged your Omics SNPs you can input them in the following way, along with adding the option to save the MR output:
+#' pathWAS_MR(genelist, clumped_snps, qtl_sumstats = "/opt/localdir/gene_qtls/file1_sumstats_$$$.tsv", geneCol = "gene_ensembl", omics_snps, save_MROutput = TRUE, save_MROutLoc = "/opt/localdir/mr_outputs/", path_select = "nod_signalling", end_point = "IL18")
 #'
 #'
 pathWAS_MR = function(genelist,
@@ -49,17 +61,43 @@ pathWAS_MR = function(genelist,
                          geneCol = "gene",
                          omics_snps,
                          omics_SNPCol= "rsid", omics_BetaCol = "beta1", omics_SECol = "se",
-                         end_point = NULL, path_select = NULL,
                          save_MRInput = FALSE,
                          save_MRInLoc = NULL,
                          save_MROutput = FALSE,
                          save_MROutLoc = NULL,
                          save_MRExps = FALSE,
-                         save_MRExpsLoc = NULL
+                         save_MRExpsLoc = NULL,
+                         end_point = NULL, path_select = NULL
                         ) {
 
   require(MendelianRandomization)
   require(data.table)
+
+  if (any(c(save_MRInput, save_MROutput, save_MRExps))){
+
+    if (is.null(end_point) || is.null(path_select)){
+
+      stop("\n====\nCannot save MR files without input for end-point and pathway.\n====\n")
+
+    }
+
+    selected_saves = which(c(save_MRInput, save_MROutput, save_MRExps))
+    selected_saves_names = c("MR Input", "MR Output", "MR exposures")
+
+    save_file_locs = c(is.null(save_MRInLoc), is.null(save_MROutLoc), is.null(save_MRExpsLoc))
+
+    for (savecheck in selected_saves){
+
+      if (save_file_locs[savecheck]){
+
+        stop(paste0("\n====\nPlease enter a save file location for ",
+                    selected_saves_names[savecheck],
+                    ".\n====\n")
+             )
+
+      }
+    }
+  }
 
   clumped_snplist = clumped_snps$rsid
   path_cohort_ovgenes = unique(genelist)
