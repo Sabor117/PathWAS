@@ -23,6 +23,7 @@
 #' @param genelistDir directory. Directory to search for and save created data frames. Default is current working directory.
 #' @param hsapien_mart data frame. Data frame of gene names including at least entrezgene_id, external_gene_name.
 #' @param transcriptFile data frame. GTEx TPMs file read as data frame.
+#'
 genepath_ListR = function(gene, pathway, tissue = NULL,
                           genelistDir = getwd(),
                           hsapien_mart,
@@ -100,7 +101,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
         heading("All tissues specified, saving as data frame.")
 
-        fwrite(tissue_genes_frame,
+        data.table::fwrite(tissue_genes_frame,
                     paste0(genelistDir, gene, "_", pathway, "_genelist.txt"),
                     sep = "\t", quote = FALSE, row.names = FALSE)
 
@@ -144,7 +145,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     ### Instead of creating list - simply reads in data frame of combinations
 
-    all_tissue_genes = fread(paste0(genelistDir, gene, "_", pathway, "_genelist.txt"),
+    all_tissue_genes = data.table::fread(paste0(genelistDir, gene, "_", pathway, "_genelist.txt"),
                              data.table = FALSE)
 
     ### selects specific parts of the data frame based on whether a single tissue was specified

@@ -41,7 +41,7 @@ get_tissuegenes = function(exprn_data,
 
   ### In order to change row names to gene names - necessary to remove duplicate gene names
 
-  duplicate_rmv = data.table(pathway_genes_tissues) ### convert to data table
+  duplicate_rmv = data.table::data.table(pathway_genes_tissues) ### convert to data table
 
   duplicate_rmv$sums = duplicate_rmv[, apply(.SD, 1, sum), .SDcols = sapply(duplicate_rmv, is.numeric)] ### creates a sum column of all tissue transcript values
   duplicate_rmv = duplicate_rmv[order(abs(sums), decreasing = T)][!duplicated(Description)] ### Entire table ordered by sums and then duplicates are removed if they are lower on the list

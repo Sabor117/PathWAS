@@ -62,11 +62,8 @@ qtl_clumpR = function(end_point, path_select,
                         plink_bin
                         ) {
 
-  require(ieugwasr)
-  require(stringr)
-
   tiss_genes_kegg = path_gene_list$gene[path_gene_list$tissue == tissue]
-  tiss_genes_entrez = str_split_fixed(tiss_genes_kegg, ":", 2)[,2]
+  tiss_genes_entrez = stringr::str_split_fixed(tiss_genes_kegg, ":", 2)[,2]
 
   genelist_frame = data.frame(unique(biomart_map[biomart_map$entrezgene_id %in% tiss_genes_entrez,]))
   genelist_frame = genelist_frame[!(genelist_frame$external_gene_name == end_point),]

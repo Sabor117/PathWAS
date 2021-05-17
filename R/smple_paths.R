@@ -25,10 +25,6 @@ smple_paths = function(pathway,
   cat(paste0("Obtaining all simple paths list for: ", pathway, ".\n"))
   cat("Come Sergei!\n\n")
 
-  require(KEGGREST)
-  require(KEGGgraph)
-  require(igraph)
-
   path_check = pathway
   geneKEGG = paste0("hsa:", gene_entrez)
 
@@ -36,13 +32,13 @@ smple_paths = function(pathway,
 
   cat("Lookup KEGG.\n\n")
 
-  pathway_kgml =	try(retrieveKGML(path_check, ### Search for given pathway
+  pathway_kgml =	try(KEGGgraph::retrieveKGML(path_check, ### Search for given pathway
                                   organism = "hsa", ### Organism
                                   destfile = tmp_fl, ### This is necessary for some reason
                                   method = "wget", ### Utilises wget method
                                   quiet = TRUE))
 
-  pathway_info = parseKGML2Graph(pathway_kgml, ### pathway kgml file
+  pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml, ### pathway kgml file
                                  expandGenes = TRUE, ### expand paralogue nodes
                                  genesOnly = FALSE) ### include connections to things which aren't genes
 
@@ -50,7 +46,7 @@ smple_paths = function(pathway,
 
   ### Convert graph file into data frame
 
-  pathway_table = as_long_data_frame(igraph.from.graphNEL(pathway_info))
+  pathway_table = as_long_data_frame(igraph::igraph.from.graphNEL(pathway_info))
 
   ### Define "starting" genes by those which are never in the "to" column
 
@@ -64,7 +60,7 @@ smple_paths = function(pathway,
 
     ### Convert graph object into igraph object
 
-    info_igraph = igraph.from.graphNEL(pathway_info)
+    info_igraph = igraph::igraph.from.graphNEL(pathway_info)
 
     ### Select start gene
 
@@ -74,7 +70,7 @@ smple_paths = function(pathway,
     ### Finds/outputs all straight line connections from selected start gene
     ### To defined end point
 
-    smple_path_n = all_simple_paths(info_igraph,
+    smple_path_n = igraph::all_simple_paths(info_igraph,
                                     nstart_gene,
                                     to = which(vertex_attr(info_igraph)$name == geneKEGG)) ### Select vertice of end point
 

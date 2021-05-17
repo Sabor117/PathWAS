@@ -70,9 +70,6 @@ pathWAS_MR = function(genelist,
                          end_point = NULL, path_select = NULL
                         ) {
 
-  require(MendelianRandomization)
-  require(data.table)
-
   if (any(c(save_MRInput, save_MROutput, save_MRExps))){
 
     if (is.null(end_point) || is.null(path_select)){
@@ -125,12 +122,12 @@ pathWAS_MR = function(genelist,
 
       if (grepl("%%%", qtl_sumstats)){
 
-        all_gene_sumstats = fread(gsub("%%%", currGene, qtl_sumstats),
+        all_gene_sumstats = data.table::fread(gsub("%%%", currGene, qtl_sumstats),
                                   data.table = FALSE)
 
       } else {
 
-        all_qtl_sumstats = fread(qtl_sumstats,
+        all_qtl_sumstats = data.table::fread(qtl_sumstats,
                                   data.table = FALSE)
 
         all_gene_sumstats = all_qtl_sumstats[currGene %in% all_qtl_sumstats[, geneCol],]
@@ -193,7 +190,7 @@ pathWAS_MR = function(genelist,
 
   heading("Matrices made. Creating MR input.")
 
-  mr_input = mr_mvinput(bx = snp_beta_matrix,
+  mr_input = MendelianRandomization::mr_mvinput(bx = snp_beta_matrix,
                         bxse = snp_se_matrix,
                         by = omics_betas,
                         byse = omics_se)
@@ -208,7 +205,7 @@ pathWAS_MR = function(genelist,
 
   }
 
-  mr_lasso_res = mr_mvlasso(mr_input)
+  mr_lasso_res = MendelianRandomization::mr_mvlasso(mr_input)
 
   mr_lasso_res@Exposure = colnames(snp_beta_matrix)
 

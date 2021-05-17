@@ -17,13 +17,10 @@
 kegg_geneglob = function(pathway,
                          in_mart = NULL){
 
-  require(KEGGREST)
-  require(biomaRt)
-
   cat(paste0("Obtaining KEGG gene list for: ", pathway, ".\n"))
   cat("Nobody expects the KEGG inquisition.\n\n")
 
-  genelist = keggLink(pathway)[,2] ### specifically selects second column (genes)
+  genelist = KEGGREST::keggLink(pathway)[,2] ### specifically selects second column (genes)
   genelist = genelist[grep("hsa", genelist)] ### specifies human genes from second column
   genelist = gsub("hsa:", "", genelist) ### convert KEGG IDs to Entrez
 
@@ -34,7 +31,7 @@ kegg_geneglob = function(pathway,
 
     cat("Lookup Biomart.\n\n")
 
-    id_map = fread(in_mart,
+    id_map = data.table::fread(in_mart,
                    data.table = FALSE)
 
     ### EDIT: Column number depends on id_map used

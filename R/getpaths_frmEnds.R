@@ -24,11 +24,6 @@ getpaths_frmEnds = function(gene_entrez){
   cat(paste0("Obtaining pathways for: ", gene_entrez, ".\n"))
   cat("It's only a wafer-thin mint, sir...\n\n")
 
-  require(KEGGREST)
-  require(KEGGgraph)
-
-  cat("Lookup successful.\n\n")
-
   geneKEGG = paste0("hsa:", gene_entrez)
 
   if (length(gene_entrez) == 0) {
@@ -57,13 +52,13 @@ getpaths_frmEnds = function(gene_entrez){
 
       cat(paste0("Lookup KEGG pathway for ", gene_entrez," + ", pathway_check, ".\n\n"))
 
-      pathway_kgml =	try(retrieveKGML(pathway_check,
+      pathway_kgml =	try(KEGGgraph::retrieveKGML(pathway_check,
                                       organism = "hsa",
                                       destfile = tmp_fl,
                                       method = "wget",
                                       quiet = TRUE))
 
-      pathway_info = parseKGML2Graph(pathway_kgml,
+      pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml,
                                      expandGenes = TRUE,
                                      genesOnly = FALSE)
 
