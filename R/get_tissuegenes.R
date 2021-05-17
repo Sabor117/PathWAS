@@ -26,6 +26,9 @@
 #' @param all_simple_paths list. The list of all "simple" linear paths through a pathway to a chosen end-point.
 #' @param in_tissue character. Either NULL (and output a gene list for all tissues in GTEx) or a single specific tissue (the name must match the file names for the tissue in GTEx).
 #' @param tpm_threshold numeric. Threshold defining whether a gene is expressed or not. Default = 1
+#'
+#' @import data.table
+#'
 get_tissuegenes = function(exprn_data,
                            in_genelist,
                            all_simple_paths,

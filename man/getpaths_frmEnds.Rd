@@ -26,4 +26,5 @@ will inform the user and will return nothing.
 \examples{
 ## Search for pathways in KEGG which have IL18 as an end-point.
 getpaths_frmEnds(3606)
+
 }

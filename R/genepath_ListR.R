@@ -24,6 +24,8 @@
 #' @param hsapien_mart data frame. Data frame of gene names including at least entrezgene_id, external_gene_name.
 #' @param transcriptFile data frame. GTEx TPMs file read as data frame.
 #'
+#' @import data.table
+#'
 genepath_ListR = function(gene, pathway, tissue = NULL,
                           genelistDir = getwd(),
                           hsapien_mart,

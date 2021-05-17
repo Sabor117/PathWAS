@@ -18,6 +18,9 @@
 #' ## Find all simple routes in pathway hsa05131 (Shigellosis) leading to end point 3606 (IL18).
 #' ## Output only the genes involved in those routes (I.e. do not keep the routes themselves).
 #' smple_paths(pathway = hsa05131, gene_entrez = 3606, keep_routes = FALSE)
+#'
+#' @import KEGGgraph igraph
+#'
 smple_paths = function(pathway,
                        gene_entrez,
                        keep_routes = TRUE){

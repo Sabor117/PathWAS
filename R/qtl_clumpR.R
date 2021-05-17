@@ -51,6 +51,8 @@
 #' @param bfile character. Location of the Plink files of your reference genotype.
 #' @param plink_bin character. Location of the local version of the plink executable.
 #'
+#' @import stringr ieugwasr
+#'
 qtl_clumpR = function(end_point, path_select,
                         path_gene_list,
                         biomart_map,

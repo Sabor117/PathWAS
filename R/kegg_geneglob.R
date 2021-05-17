@@ -14,6 +14,9 @@
 #'
 #' @param pathway character. KEGG pathway ID.
 #' @param in_mart data frame. A data frame of multiple columns which, at a minimum includes entrezgene_id and external_gene_name.
+#'
+#' @import KEGGREST data.table
+#'
 kegg_geneglob = function(pathway,
                          in_mart = NULL){
 

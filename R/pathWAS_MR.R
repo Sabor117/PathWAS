@@ -7,7 +7,7 @@
 #' @details
 #' This function requires the input of numerous pieces of data from throughout the PathWAS pipeline. The list
 #' of genes (acquired from searching for the pathway genes) is needed to select specific QTL SNPs for conducting
-#' the MR. A data frame containing the SNPs produced by clumping (qtl_clumpR) is needed for pruning the QTLs by
+#' the MR, this list must exclude the end-point gene. A data frame containing the SNPs produced by clumping (qtl_clumpR) is needed for pruning the QTLs by
 #' clumped SNPs. A file location of the data frame of your QTL SNPs including a column with the named gene which must match the format
 #' of the input gene list (I.e. HGNC format), this can either be the total available sumstats or can point to
 #' multiple files divided up by gene. This should also include all SNPs for every gene and not just significant ones.
@@ -54,6 +54,7 @@
 #' ## Havimg created a list of genes, clumped SNPs and munged your Omics SNPs you can input them in the following way, along with adding the option to save the MR output:
 #' pathWAS_MR(genelist, clumped_snps, qtl_sumstats = "/opt/localdir/gene_qtls/file1_sumstats_$$$.tsv", geneCol = "gene_ensembl", omics_snps, save_MROutput = TRUE, save_MROutLoc = "/opt/localdir/mr_outputs/", path_select = "nod_signalling", end_point = "IL18")
 #'
+#' @import data.table MendelianRandomization
 #'
 pathWAS_MR = function(genelist,
                          clumped_snps,

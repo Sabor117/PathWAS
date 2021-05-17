@@ -19,6 +19,9 @@
 #' @examples
 #' ## Search for pathways in KEGG which have IL18 as an end-point.
 #' getpaths_frmEnds(3606)
+#'
+#' @import KEGGREST KEGGgraph
+#'
 getpaths_frmEnds = function(gene_entrez){
 
   cat(paste0("Obtaining pathways for: ", gene_entrez, ".\n"))
@@ -35,7 +38,7 @@ getpaths_frmEnds = function(gene_entrez){
 
   }
 
-  pathfind = as.list(keggLink("pathway", geneKEGG))
+  pathfind = as.list(KEGGREST::keggLink("pathway", geneKEGG))
 
   print(head(pathfind))
   cat("\n\n")
