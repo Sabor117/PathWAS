@@ -35,7 +35,7 @@
 #' @param path_qtl_ovgenes list. List of all genes overlapping between your pathway and the QTLs available. These names must be in the same format as the column names for your PRS.
 #' @param path_select character. Name of the pathway for the analysis.
 #' @param mr_lasso_res LASSO model. Output [1] of the pathWAS_MR function.
-#' @param endpoint_omics data frame. 2 columns. The first MUST be titled "iid" and the second is the omics measurement of your end-point. These IIDs must be the same as for the PRS data frame.
+#' @param endpoint_omics data frame. 2 columns. The first MUST be titled "iid" and the second is the omics measurement of your end-point and MUST titled in the format "<GENE>_omic". These IIDs must be the same as for the PRS data frame.
 #' @param end_point character. Name of the omics end-point measured and used as the proxy for pathway functionality.
 #' @param run_sig_MR logical. Also run a prediction on only significant exposures (genes) from the MR. Default is FALSE.
 #' @param sig_mr_genelist list. If run_sig_MR == TRUE, you must include this. Output [2] from the pathWAS_MR function.
@@ -72,11 +72,13 @@ MR_genecheckR = function(predict_PRS,
 
   for (num_gene in 1:predict_geneno){
 
-    all_predict_PRS[, num_gene] = 0
-    exclude_gene = colnames(all_predict_PRS[, num_gene])
+    temp_predict_PRS = all_predict_PRS
+
+    temp_predict_PRS[, num_gene] = 0
+    exclude_gene = colnames(temp_predict_PRS)[num_gene]
 
     predict_PRS_comb = data.frame(iid = PRS_iids,
-                                  combined = rowSums(all_predict_PRS))
+                                  combined = rowSums(temp_predict_PRS))
 
     test_model = prs_mergeR(predict_PRS_comb,
                             endpoint_omics,
@@ -127,11 +129,13 @@ MR_genecheckR = function(predict_PRS,
 
         for (num_gene in 1:sig_predict_geneno){
 
-          sig_predict_PRS[, num_gene] = 0
-          exclude_gene = colnames(sig_predict_PRS[, num_gene])
+          temp_sig_PRS = sig_predict_PRS
+
+          temp_sig_PRS[, num_gene] = 0
+          exclude_gene = colnames(temp_sig_PRS[, num_gene])
 
           sig_predict_PRS_comb = data.frame(iid = PRS_iids,
-                                            combined = rowSums(sig_predict_PRS))
+                                            combined = rowSums(temp_sig_PRS))
 
           sig_test_model = prs_mergeR(sig_predict_PRS_comb,
                                       endpoint_omics,
