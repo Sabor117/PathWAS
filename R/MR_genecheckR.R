@@ -58,7 +58,7 @@ MR_genecheckR = function(predict_PRS,
 
   for (num_expos in 1:ncol(all_predict_PRS)){
 
-    all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res$Estimate[predict_PRS_genedex][num_expos]
+    all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res@Estimate[predict_PRS_genedex][num_expos]
 
   }
 
@@ -123,7 +123,7 @@ MR_genecheckR = function(predict_PRS,
 
         for (num_expos in 1:ncol(sig_predict_PRS)){
 
-          sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res$Estimate[sig_predict_PRS_genedex][num_expos]
+          sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res@Estimate[sig_predict_PRS_genedex][num_expos]
 
         }
 

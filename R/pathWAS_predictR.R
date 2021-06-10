@@ -48,13 +48,12 @@ pathWAS_predictR = function(predict_PRS,
   PRS_path_ovgenes = path_qtl_ovgenes[path_qtl_ovgenes %in% colnames(predict_PRS)]
 
   all_predict_PRS = as.data.frame(predict_PRS[, PRS_path_ovgenes])
-#  colnames(predict_PRS) = PRS_path_ovgenes
 
   predict_PRS_genedex = path_qtl_ovgenes %in% colnames(all_predict_PRS)
 
   for (num_expos in 1:ncol(all_predict_PRS)){
 
-    all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res$Estimate[predict_PRS_genedex][num_expos]
+    all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res@Estimate[predict_PRS_genedex][num_expos]
 
   }
 
@@ -81,7 +80,7 @@ pathWAS_predictR = function(predict_PRS,
 
         for (num_expos in 1:ncol(sig_predict_PRS)){
 
-          sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res$Estimate[sig_predict_PRS_genedex][num_expos]
+          sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res@Estimate[sig_predict_PRS_genedex][num_expos]
 
         }
 
