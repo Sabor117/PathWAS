@@ -17,6 +17,7 @@
 #'
 #' @import KEGGREST data.table
 #'
+#' @export
 kegg_geneglob = function(pathway,
                          in_mart = NULL){
 

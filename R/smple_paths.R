@@ -21,6 +21,7 @@
 #'
 #' @import KEGGgraph igraph
 #'
+#' @export
 smple_paths = function(pathway,
                        gene_entrez,
                        keep_routes = TRUE){

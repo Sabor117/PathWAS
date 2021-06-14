@@ -24,7 +24,7 @@ MR_genecheckR(
 
 \item{mr_lasso_res}{LASSO model. Output [1] of the pathWAS_MR function.}
 
-\item{endpoint_omics}{data frame. 2 columns. The first MUST be titled "iid" and the second is the omics measurement of your end-point. These IIDs must be the same as for the PRS data frame.}
+\item{endpoint_omics}{data frame. 2 columns. The first MUST be titled "iid" and the second is the omics measurement of your end-point and MUST titled in the format "<GENE>_omic". These IIDs must be the same as for the PRS data frame.}
 
 \item{end_point}{character. Name of the omics end-point measured and used as the proxy for pathway functionality.}
 

@@ -16,6 +16,7 @@
 #' @param omics data frame. ONLY 2 columns. MUST contain "iid" column overlapping with pathway_scores. Other column is the end-point omics.
 #' @param gene character. Name of the end-point protein used in the analysis.
 #'
+#' @export
 prs_mergeR = function(pathway_scores, omics, gene){
 
   ### Combine scores and proteomics

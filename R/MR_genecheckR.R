@@ -40,6 +40,7 @@
 #' @param run_sig_MR logical. Also run a prediction on only significant exposures (genes) from the MR. Default is FALSE.
 #' @param sig_mr_genelist list. If run_sig_MR == TRUE, you must include this. Output [2] from the pathWAS_MR function.
 #'
+#' @export
 MR_genecheckR = function(predict_PRS,
                             path_qtl_ovgenes, path_select,
                             mr_lasso_res,

@@ -53,6 +53,7 @@
 #'
 #' @import stringr ieugwasr
 #'
+#' @export
 qtl_clumpR = function(end_point, path_select,
                         path_gene_list,
                         biomart_map,

@@ -22,6 +22,7 @@
 #'
 #' @import KEGGREST KEGGgraph
 #'
+#' @export
 getpaths_frmEnds = function(gene_entrez){
 
   cat(paste0("Obtaining pathways for: ", gene_entrez, ".\n"))

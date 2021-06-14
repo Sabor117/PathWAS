@@ -7,6 +7,7 @@
 #'
 #' @param modelobject model output from lm function
 #'
+#' @export
 lmp = function (modelobject) {
 
   if (class(modelobject) != "lm"){

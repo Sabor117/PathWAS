@@ -56,6 +56,7 @@
 #'
 #' @import data.table MendelianRandomization
 #'
+#' @export
 pathWAS_MR = function(genelist,
                          clumped_snps,
                          qtl_sumstats,

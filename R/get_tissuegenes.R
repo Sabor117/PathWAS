@@ -29,6 +29,7 @@
 #'
 #' @import data.table
 #'
+#' @export
 get_tissuegenes = function(exprn_data,
                            in_genelist,
                            all_simple_paths,

@@ -26,6 +26,7 @@
 #'
 #' @import data.table
 #'
+#' @export
 genepath_ListR = function(gene, pathway, tissue = NULL,
                           genelistDir = getwd(),
                           hsapien_mart,
