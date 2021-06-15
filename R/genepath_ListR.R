@@ -34,6 +34,12 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
                           transcriptFile
                           ) {
 
+  readmart = fread(hsapien_mart,
+                   data.table = FALSE)
+
+  geneName = unique(readmart$external_gene_name[readmart$entrezgene_id %in% gene])
+  pathName = gsub("path:", "", pathway)
+
   if (file.exists(paste0(genelistDir, gene, "_", pathway, "_genelist.txt")) == FALSE){
 
     ### If no existing combination file is found, then it will create one:
@@ -64,12 +70,6 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     gtex_tpms = data.table::fread(transcriptFile,
                         data.table = FALSE)
-
-    readmart = fread(hsapien_mart,
-                     data.table = FALSE)
-
-    geneName = unique(readmart$external_gene_name[readmart$entrezgene_id %in% gene])
-    pathName = gsub("path:", "", pathway)
 
     ### If a tissue was specified then only create data frame for that tissue
     ### However, do not save the file (only save overall combinations in a file)
