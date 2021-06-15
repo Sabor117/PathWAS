@@ -40,7 +40,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
   geneName = unique(readmart$external_gene_name[readmart$entrezgene_id %in% gene])
   pathName = gsub("path:", "", pathway)
 
-  if (file.exists(paste0(genelistDir, gene, "_", pathway, "_genelist.txt")) == FALSE){
+  if (file.exists(paste0(genelistDir, geneName, "_", pathName, "_genelist.txt")) == FALSE){
 
     ### If no existing combination file is found, then it will create one:
 
@@ -180,7 +180,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
   ### Making sure tissue_genes is in data.frame
 
-  if (!exists("tissue_genes_frame")){
+  if (!(exists(tissue_genes_frame))){
 
     heading("No genelists for scores")
     return(NULL)
