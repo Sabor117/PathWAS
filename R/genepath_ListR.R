@@ -18,7 +18,7 @@
 #' which includes the following columns: entrezgene_id, external_gene_name.
 #'
 #' @param gene character or numeric (Entrez ID)
-#' @param pathway character. KEGG pathway ID.
+#' @param pathway character. KEGG pathway ID (path:hsa5200).
 #' @param tissue character. Name of specific tissue for creating gene-list (must be as in GTEx TPMs file). Default is NULL which works for all tissues.
 #' @param genelistDir directory. Directory to search for and save created data frames. Default is current working directory.
 #' @param hsapien_mart data frame. Data frame of gene names including at least entrezgene_id, external_gene_name.
@@ -28,6 +28,7 @@
 #'
 #' @export
 genepath_ListR = function(gene, pathway, tissue = NULL,
+                          write = TRUE,
                           genelistDir = getwd(),
                           hsapien_mart,
                           transcriptFile
@@ -61,8 +62,14 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
     ### tissue variable must be in GTEx format
     ### If variable is default null or "all" then run on all tissues
 
-    gtex_tpms = fread(transcriptFile,
+    gtex_tpms = data.table::fread(transcriptFile,
                         data.table = FALSE)
+
+    readmart = fread(hsapien_mart,
+                     data.table = FALSE)
+
+    geneName = unique(readmart$external_gene_name[readmart$entrezgene_id %in% gene])
+    pathName = gsub("path:", "", pathway)
 
     ### If a tissue was specified then only create data frame for that tissue
     ### However, do not save the file (only save overall combinations in a file)
@@ -102,12 +109,15 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
         ### As this loop involves ALL combinations, it will save the data frame to a file
         ### EDIT: specifies directory
 
-        heading("All tissues specified, saving as data frame.")
+        if (write == TRUE){
 
-        data.table::fwrite(tissue_genes_frame,
-                    paste0(genelistDir, gene, "_", pathway, "_genelist.txt"),
-                    sep = "\t", quote = FALSE, row.names = FALSE)
+          heading("Write called as true, saving as data frame.")
 
+          data.table::fwrite(tissue_genes_frame,
+                             paste0(genelistDir, geneName, "_", pathName, "_genelist.txt"),
+                             sep = "\t", quote = FALSE, row.names = FALSE)
+
+        }
       }
     } else { ### If no file exists but a tissue is specified:
 
@@ -142,13 +152,13 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     ### If a file already exists for this particular pathway
 
-  } else if (file.exists(paste0(genelistDir, gene, "_", pathway, "_genelist.txt")) == TRUE){
+  } else if (file.exists(paste0(genelistDir, geneName, "_", pathName, "_genelist.txt")) == TRUE){
 
     heading("Tissue genelist exists. Reading it now.")
 
     ### Instead of creating list - simply reads in data frame of combinations
 
-    all_tissue_genes = data.table::fread(paste0(genelistDir, gene, "_", pathway, "_genelist.txt"),
+    all_tissue_genes = data.table::fread(paste0(genelistDir, geneName, "_", pathName, "_genelist.txt"),
                              data.table = FALSE)
 
     ### selects specific parts of the data frame based on whether a single tissue was specified

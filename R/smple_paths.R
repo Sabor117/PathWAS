@@ -10,14 +10,15 @@
 #' Therefore this outputs only the genes from the pathway which are associated with the end-point, and excludes genes which
 #' theoretically have no influence over the end-point.
 #'
-#' @param pathway character. KEGG pathway ID.
+#' @param pathway character. KEGG pathway ID (e.g.: path:hsa05131).
 #' @param gene_entrez character or numeric. Entrez gene ID.
 #' @param keep_routes logical. Should the function output all simple pathways, or output a list of genes.
 #'
 #' @examples
 #' ## Find all simple routes in pathway hsa05131 (Shigellosis) leading to end point 3606 (IL18).
 #' ## Output only the genes involved in those routes (I.e. do not keep the routes themselves).
-#' smple_paths(pathway = hsa05131, gene_entrez = 3606, keep_routes = FALSE)
+#'
+#' smple_paths(pathway = path:hsa05131, gene_entrez = 3606, keep_routes = FALSE)
 #'
 #' @import KEGGgraph igraph
 #'
