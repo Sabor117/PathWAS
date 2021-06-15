@@ -180,7 +180,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
   ### Making sure tissue_genes is in data.frame
 
-  if (!(exists(tissue_genes_frame))){
+  if (!(exists("tissue_genes_frame"))){
 
     heading("No genelists for scores")
     return(NULL)
