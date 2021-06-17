@@ -35,8 +35,9 @@
 #' and a data frame of the clumped SNPs (usually only a few per locus).
 #'
 #' @param end_point character. Name of gene in HGNC format (or equivalent). Required for excluding the gene from
-#' the list of QTls used.
-#' @param path_select character. Name of pathway. Format is irrelevant, only used for aesthetics purposes.
+#' the list of QTLs used.
+#' @param path_select character. Name of pathway. Format is unimportant, only used for aesthetics purposes.
+#' @param path_gene_list list. The output of either smple_paths or genepath_ListR. A list of Entrez IDs of all genes in your pathway.
 #' @param biomart_map data frame. Data frame of gene names including at least entrezgene_id, external_gene_name
 #' and whatever format of gene name is used in the QTLs (e.g. Ensembl ID).
 #' @param all_snps data frame. All SNPs for QTLs to be filtered in analysis. May be significant QTLs only.
@@ -45,13 +46,10 @@
 #' column containing the gene names.
 #' @param qtl_gene_identifier character or numeric. Equivalent naming format from the SNPs in the BioMart map. E.g.
 #' if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from BioMart.
-#' @param tissue character. Deprecated variable, for use when running through the functions of the pipeline
-#' used for selecting the genes involved with tissues filtered by GTEx TPMs (default is "Complete" I.e. the
-#' complete pathway)
 #' @param bfile character. Location of the Plink files of your reference genotype.
 #' @param plink_bin character. Location of the local version of the plink executable.
 #'
-#' @import stringr ieugwasr
+#' @import data.table ieugwasr
 #'
 #' @export
 qtl_clumpR = function(end_point, path_select,
@@ -60,13 +58,12 @@ qtl_clumpR = function(end_point, path_select,
                         all_snps,
                         all_snps_genecol = "gene_ensembl",
                         qtl_gene_identifier = "ensembl_gene_id",
-                        tissue = "Complete",
                         bfile,
                         plink_bin
                         ) {
 
-  tiss_genes_kegg = path_gene_list$gene[path_gene_list$tissue == tissue]
-  tiss_genes_entrez = stringr::str_split_fixed(tiss_genes_kegg, ":", 2)[,2]
+  biomart_map = data.table::fread(biomart_map,
+                                  data.table = FALSE)
 
   genelist_frame = data.frame(unique(biomart_map[biomart_map$entrezgene_id %in% tiss_genes_entrez,]))
   genelist_frame = genelist_frame[!(genelist_frame$external_gene_name == end_point),]
