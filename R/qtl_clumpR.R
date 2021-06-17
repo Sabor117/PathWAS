@@ -52,7 +52,7 @@
 #' @import data.table ieugwasr
 #'
 #' @export
-qtl_clumpR = function(end_point, path_select,
+qtl_clumpR_2 = function(end_point, path_select,
                         path_gene_list,
                         biomart_map,
                         all_snps,
@@ -65,7 +65,7 @@ qtl_clumpR = function(end_point, path_select,
   biomart_map = data.table::fread(biomart_map,
                                   data.table = FALSE)
 
-  genelist_frame = data.frame(unique(biomart_map[biomart_map$entrezgene_id %in% tiss_genes_entrez,]))
+  genelist_frame = data.frame(unique(biomart_map[biomart_map$entrezgene_id %in% path_gene_list,]))
   genelist_frame = genelist_frame[!(genelist_frame$external_gene_name == end_point),]
 
   tiss_genes_name = unique(genelist_frame$external_gene_name)
