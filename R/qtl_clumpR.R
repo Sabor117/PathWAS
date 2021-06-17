@@ -52,7 +52,7 @@
 #' @import data.table ieugwasr
 #'
 #' @export
-qtl_clumpR_2 = function(end_point, path_select,
+qtl_clumpR = function(end_point, path_select,
                         path_gene_list,
                         biomart_map,
                         all_snps,
@@ -68,10 +68,10 @@ qtl_clumpR_2 = function(end_point, path_select,
   genelist_frame = data.frame(unique(biomart_map[biomart_map$entrezgene_id %in% path_gene_list,]))
   genelist_frame = genelist_frame[!(genelist_frame$external_gene_name == end_point),]
 
-  tiss_genes_name = unique(genelist_frame$external_gene_name)
-  tiss_genes_identifier = unique(genelist_frame[,qtl_gene_identifier])
+  path_genes_name = unique(genelist_frame$external_gene_name)
+  path_genes_identifier = unique(genelist_frame[,qtl_gene_identifier])
 
-  path_snplist = all_snps[all_snps[,all_snps_genecol] %in% tiss_genes_identifier,]
+  path_snplist = all_snps[all_snps[,all_snps_genecol] %in% path_genes_identifier,]
 
   repeat_snps = path_snplist$snpid[duplicated(path_snplist$snpid)]
   repeat_snps_info = path_snplist[path_snplist$snpid %in% repeat_snps,]
@@ -93,15 +93,15 @@ qtl_clumpR_2 = function(end_point, path_select,
   clumped_snps_cols[length(clumped_snps_cols) + 1] = "id"
 
   clumped_snps = data.frame(matrix(vector(), 0, length(clumped_snps_cols),
-                            dimnames = list(c(), clumped_snps_cols)),
+                                   dimnames = list(c(), clumped_snps_cols)),
                             stringsAsFactors = F)
 
   if (!(grepl("%%%", bfile))){
 
     clumped_snps = ieugwasr::ld_clump(dat = path_snplist,
-                                           bfile = bfile,
-                                           plink_bin = plink_bin
-                                            )
+                                      bfile = bfile,
+                                      plink_bin = plink_bin
+    )
 
   } else {
 
@@ -122,5 +122,5 @@ qtl_clumpR_2 = function(end_point, path_select,
     }
   }
 
-  return(c(path_snplist, clumped_snps))
+  return(clumped_snps)
 }
