@@ -7,7 +7,7 @@
 smple_paths(pathway, gene_entrez, keep_routes = TRUE)
 }
 \arguments{
-\item{pathway}{character. KEGG pathway ID.}
+\item{pathway}{character. KEGG pathway ID (e.g.: path:hsa05131).}
 
 \item{gene_entrez}{character or numeric. Entrez gene ID.}
 
@@ -26,6 +26,7 @@ theoretically have no influence over the end-point.
 \examples{
 ## Find all simple routes in pathway hsa05131 (Shigellosis) leading to end point 3606 (IL18).
 ## Output only the genes involved in those routes (I.e. do not keep the routes themselves).
-smple_paths(pathway = hsa05131, gene_entrez = 3606, keep_routes = FALSE)
+
+smple_paths(pathway = path:hsa05131, gene_entrez = 3606, keep_routes = FALSE)
 
 }

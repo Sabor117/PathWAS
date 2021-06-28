@@ -8,6 +8,7 @@ genepath_ListR(
   gene,
   pathway,
   tissue = NULL,
+  write = TRUE,
   genelistDir = getwd(),
   hsapien_mart,
   transcriptFile
@@ -16,7 +17,7 @@ genepath_ListR(
 \arguments{
 \item{gene}{character or numeric (Entrez ID)}
 
-\item{pathway}{character. KEGG pathway ID.}
+\item{pathway}{character. KEGG pathway ID (path:hsa5200).}
 
 \item{tissue}{character. Name of specific tissue for creating gene-list (must be as in GTEx TPMs file). Default is NULL which works for all tissues.}
 

@@ -12,16 +12,17 @@ qtl_clumpR(
   all_snps,
   all_snps_genecol = "gene_ensembl",
   qtl_gene_identifier = "ensembl_gene_id",
-  tissue = "Complete",
   bfile,
   plink_bin
 )
 }
 \arguments{
 \item{end_point}{character. Name of gene in HGNC format (or equivalent). Required for excluding the gene from
-the list of QTls used.}
+the list of QTLs used.}
 
-\item{path_select}{character. Name of pathway. Format is irrelevant, only used for aesthetics purposes.}
+\item{path_select}{character. Name of pathway. Format is unimportant, only used for aesthetics purposes.}
+
+\item{path_gene_list}{list. The output of either smple_paths or genepath_ListR. A list of Entrez IDs of all genes in your pathway.}
 
 \item{biomart_map}{data frame. Data frame of gene names including at least entrezgene_id, external_gene_name
 and whatever format of gene name is used in the QTLs (e.g. Ensembl ID).}
@@ -34,10 +35,6 @@ column containing the gene names.}
 
 \item{qtl_gene_identifier}{character or numeric. Equivalent naming format from the SNPs in the BioMart map. E.g.
 if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from BioMart.}
-
-\item{tissue}{character. Deprecated variable, for use when running through the functions of the pipeline
-used for selecting the genes involved with tissues filtered by GTEx TPMs (default is "Complete" I.e. the
-complete pathway)}
 
 \item{bfile}{character. Location of the Plink files of your reference genotype.}
 
