@@ -13,6 +13,7 @@
 #'
 #' @param df data frame. With 5 columns in order: rsID, a1, a0 (genotype to be checked), a1, a0 (genotype to be checked against)
 #'
+#' @export
 flip.data.frame = function(df) {
 
   apply(df[2:5], 1, function(x) flip.allele(x[1], x[2], x[3], x[4]))

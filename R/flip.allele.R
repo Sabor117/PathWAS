@@ -1,3 +1,4 @@
+#' @export
 flip.allele = function(ref_ld,alt_ld,ref_gen,alt_gen) {
 
   if (ref_ld == ref_gen && alt_ld == alt_gen){

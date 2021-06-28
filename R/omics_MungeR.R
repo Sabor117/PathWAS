@@ -27,6 +27,8 @@
 #' omics_EffAllCol = "Effect_Allele", omics_OthAllCol = "Other_Allele", clumped_SNPCol = "rsid", clumped_EffAllCol = "a1",
 #' clumped_OthAllCol = "a0")
 #'
+#' @import dplyr
+#'
 #' @export
 omics_MungeR = function(endpoint_omics,
                         clumped_snplist,
@@ -34,19 +36,23 @@ omics_MungeR = function(endpoint_omics,
                         clumped_SNPCol = "rsid", clumped_EffAllCol = "a1", clumped_OthAllCol = "a0"
                         ) {
 
-  omics_snps = endpoint_omics[endpoint_omics[, omics_SNPCol] %in% clumped_snplist,]
+  omics_snps = endpoint_omics[endpoint_omics[, omics_SNPCol] %in% clumped_snplist[, clumped_SNPCol],]
 
   omics_test = data.frame(rsid = omics_snps[, omics_SNPCol],
-                          eff = omics_snps[, omics_EffAllCol],
-                          ref = omics_snps[, omics_OthAllCol])
+                          eff = toupper(omics_snps[, omics_EffAllCol]),
+                          ref = toupper(omics_snps[, omics_OthAllCol])
+                          )
 
   clumped_test = data.frame(rsid = clumped_snplist[, clumped_SNPCol],
-                          a1 = clumped_snplist[, clumped_EffAllCol],
-                          a0 = clumped_snplist[, clumped_OthAllCol])
+                          a1 = toupper(clumped_snplist[, clumped_EffAllCol]),
+                          a0 = toupper(clumped_snplist[, clumped_OthAllCol])
+                          )
 
   ### Merge tables by rsID
 
-  flip_table = merge(omics_test, clumped_test, by = "rsid", sort = FALSE)
+  flip_table = dplyr::inner_join(omics_test,
+                                 clumped_test,
+                                 by = "rsid")
 
   ### Utilise flip data tables function on merged table
   ### Outputs flip status as additional column
@@ -57,10 +63,10 @@ omics_MungeR = function(endpoint_omics,
 
   colnames(flip_table_keep) = c(omics_SNPCol, "FLIP")
 
-  omics_snps = merge(endpoint_omics,
-                     flip_table_keep,
-                     by = omics_SNPCol,
-                     sort = FALSE)
+  omics_snps = dplyr::inner_join(endpoint_omics,
+                                  flip_table_keep,
+                                 by = omics_SNPCol
+                                 )
 
   return(omics_snps)
 

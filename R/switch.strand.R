@@ -1,3 +1,4 @@
+#' @export
 switch.strand = function(allele){
 
   allele = toupper(allele)

@@ -44,7 +44,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     ### If no existing combination file is found, then it will create one:
 
-    heading("No existing tissue genelist. Making you one now.")
+    heading("No existing gene list/s for pathway + gene combo. Making you one now.")
 
     ### Obtain list of genes from KEGG for pathway
 
@@ -76,7 +76,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     if (is.null(tissue) || toupper(tissue) == "ALL"){
 
-      heading("All tissues specified, creating a list of all tissues + genes.")
+      heading("All tissues specified, creating a list of all tissues + gene-lists.")
 
       tissue_genes_list = get_tissuegenes(gtex_tpms, pathway_genes, all_simple_paths) ### tissue_genes_list outputs as a list of lists
 
@@ -121,7 +121,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
       }
     } else { ### If no file exists but a tissue is specified:
 
-      heading(paste0(tissue, " tissue specified, creating a list for it."))
+      heading(paste0(tissue, " tissue specified, creating a gene list for it."))
 
       ### Creates tissue_gene list but only for specified tissue
 
@@ -129,7 +129,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
       if (length(tissue_genes_list) == 0){
 
-        heading("No genes in any tissue.")
+        heading("No genes in selected tissue.")
 
       } else {
 
@@ -145,7 +145,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
         colnames(tissue_genes_frame) = c("tissue", "gene")
 
-        heading("Not save results for tissue-specific list.")
+        heading("Results not saved to disk.")
 
       }
     }
@@ -154,7 +154,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
   } else if (file.exists(paste0(genelistDir, geneName, "_", pathName, "_genelist.txt")) == TRUE){
 
-    heading("Tissue genelist exists. Reading it now.")
+    heading("Pathway + end-point gene list exists. Reading it now.")
 
     ### Instead of creating list - simply reads in data frame of combinations
 
@@ -165,13 +165,13 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     if (is.null(tissue) || toupper(tissue) == "ALL"){
 
-      heading("All tissues read.")
+      heading("Creating gene lists for all tissues.")
 
       tissue_genes_frame = all_tissue_genes
 
     } else {
 
-      heading("Your tissue read.")
+      heading("Creating gene lists for selected tissue.")
 
       tissue_genes_frame = all_tissue_genes[all_tissue_genes$tissue == tissue,]
 
@@ -182,7 +182,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
   if (!(exists("tissue_genes_frame"))){
 
-    heading("No genelists for scores")
+    heading("No possible gene lists for pathway + end-point combo.")
     return(NULL)
 
   } else {

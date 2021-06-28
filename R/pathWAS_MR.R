@@ -92,22 +92,20 @@ pathWAS_MR = function(genelist,
         stop(paste0("\n====\nPlease enter a save file location for ",
                     selected_saves_names[savecheck],
                     ".\n====\n")
-             )
+        )
 
       }
     }
   }
 
   clumped_snplist = clumped_snps$rsid
-  path_cohort_ovgenes = unique(genelist)
+  path_cohort_ovgenes = unique(genelist[!(genelist %in% end_point)])
 
-  snp_beta_matrix = data.frame(matrix(vector(), 0, length(path_cohort_ovgenes),
-                                      dimnames = list(c(), path_cohort_ovgenes)),
-                               stringsAsFactors = F)
+  snp_beta_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
+  colnames(snp_beta_matrix) = c(path_cohort_ovgenes)
 
-  snp_se_matrix = data.frame(matrix(vector(), 0, length(path_cohort_ovgenes),
-                                    dimnames = list(c(), path_cohort_ovgenes)),
-                             stringsAsFactors = F)
+  snp_se_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
+  colnames(snp_se_matrix) = c(path_cohort_ovgenes)
 
   for (nsnp in 1:length(clumped_snplist)){
 
@@ -118,26 +116,44 @@ pathWAS_MR = function(genelist,
 
     for (ngene in 1:length(path_cohort_ovgenes)){
 
+      all_gene_sumstats = NULL
+
       currGene = path_cohort_ovgenes[ngene]
 
       ### EDIT: Individual gene file
 
       if (grepl("%%%", qtl_sumstats)){
 
-        all_gene_sumstats = data.table::fread(gsub("%%%", currGene, qtl_sumstats),
-                                  data.table = FALSE)
+        if (file.exists(gsub("%%%", currGene, qtl_sumstats))){
 
+          all_gene_sumstats = data.table::fread(gsub("%%%", currGene, qtl_sumstats),
+                                                data.table = FALSE)
+
+        } else {
+
+          snp_gene_beta = NULL
+
+        }
       } else {
 
         all_qtl_sumstats = data.table::fread(qtl_sumstats,
-                                  data.table = FALSE)
+                                             data.table = FALSE)
 
         all_gene_sumstats = all_qtl_sumstats[currGene %in% all_qtl_sumstats[, geneCol],]
 
+        if (nrow(all_gene_sumstats) == 0){
+
+          snp_gene_beta = NULL
+
+        }
       }
 
-      snp_gene_beta = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
-      snp_gene_se = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
+      if (exists("all_gene_sumstats")){
+
+        snp_gene_beta = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
+        snp_gene_se = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
+
+      }
 
       if (length(snp_gene_beta) == 0){
 
@@ -187,15 +203,21 @@ pathWAS_MR = function(genelist,
 
   }
 
+  if (all(snp_beta_matrix == 0.0000001)){
+
+    stop("No SNPs overlap between QTLs and omics.\n\n========\n")
+
+  }
+
   omics_betas = omics_snps[, omics_BetaCol] * omics_snps$FLIP
   omics_se = omics_snps[, omics_SECol]
 
   heading("Matrices made. Creating MR input.")
 
   mr_input = MendelianRandomization::mr_mvinput(bx = snp_beta_matrix,
-                        bxse = snp_se_matrix,
-                        by = omics_betas,
-                        byse = omics_se)
+                                                bxse = snp_se_matrix,
+                                                by = omics_betas,
+                                                byse = omics_se)
 
   heading("MR input made. Running MR.")
 
@@ -214,7 +236,7 @@ pathWAS_MR = function(genelist,
   if (save_MROutput == TRUE) {
 
     saveRDS(mr_lasso_res,
-          file = paste0(save_MROutLoc, end_point, "_", path_select, "_MR_output.rds"))
+            file = paste0(save_MROutLoc, end_point, "_", path_select, "_MR_output.rds"))
 
   }
 
@@ -225,7 +247,7 @@ pathWAS_MR = function(genelist,
   if (save_MRExps == TRUE) {
 
     saveRDS(mr_lasso_names,
-          file = paste0(save_MRExpsLoc, end_point, "_", path_select, "_MR_exps.rds"))
+            file = paste0(save_MRExpsLoc, end_point, "_", path_select, "_MR_exps.rds"))
 
   }
 
