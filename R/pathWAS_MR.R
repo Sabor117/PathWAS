@@ -69,8 +69,15 @@ pathWAS_MR = function(genelist,
                          save_MROutLoc = NULL,
                          save_MRExps = FALSE,
                          save_MRExpsLoc = NULL,
-                         end_point = NULL, path_select = NULL
+                         end_point = NULL, path_select = NULL,
+                         verbose = TRUE
                         ) {
+
+  if (verbose == TRUE){
+
+    heading("Nobody expects the MR inquisition... Our chief weapon is surprise, surprise and difficulty explaining the concept.")
+
+  }
 
   if (any(c(save_MRInput, save_MROutput, save_MRExps))){
 
@@ -107,7 +114,19 @@ pathWAS_MR = function(genelist,
   snp_se_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
   colnames(snp_se_matrix) = c(path_cohort_ovgenes)
 
+  if (verbose == TRUE){
+
+    heading("Creating SNP beta and SE matrices.")
+
+  }
+
   for (nsnp in 1:length(clumped_snplist)){
+
+    if (nsnp %% 100 == 0 && verbose == TRUE){
+
+      cat(paste0("\nNow working on SNP: ", nsnp, "\n====\n"))
+
+    }
 
     currSnp = clumped_snplist[nsnp]
 
@@ -209,17 +228,25 @@ pathWAS_MR = function(genelist,
 
   }
 
+  if (verbose == TRUE){
+
+    heading("Matrices made. Creating MR input.")
+
+  }
+
   omics_betas = omics_snps[, omics_BetaCol] * omics_snps$FLIP
   omics_se = omics_snps[, omics_SECol]
-
-  heading("Matrices made. Creating MR input.")
 
   mr_input = MendelianRandomization::mr_mvinput(bx = snp_beta_matrix,
                                                 bxse = snp_se_matrix,
                                                 by = omics_betas,
                                                 byse = omics_se)
 
-  heading("MR input made. Running MR.")
+  if (verbose == TRUE){
+
+    heading("MR input made. Running MR.")
+
+  }
 
   if (save_MRInput == TRUE) {
 
@@ -240,7 +267,11 @@ pathWAS_MR = function(genelist,
 
   }
 
-  heading("MR complete.")
+  if (verbose == TRUE){
+
+    heading("MR complete.")
+
+  }
 
   mr_lasso_names = list(genes = colnames(snp_beta_matrix), rsids = rownames(snp_beta_matrix))
 

@@ -8,7 +8,7 @@
 #' gene-exposure values. As well as this it requires two important aspects for creating the final PathWAS model.
 #' 1. It requires your end-point proteomics measures. The end-point selected at the start of PathWAS must be input
 #' along with a data frame of iids + omics measures. This MUST be in the format of 2 columns: iid, metabolite/protein (where the name
-#' of the second column is less important).
+#' of the second column is in the format of: "XXX_omic" where "XXX" can be anything).
 #' 2. It requires polygenic risk scores (PRS) for every gene in your pathway. This has to be created in the same
 #' cohort for which you have your omics measurements. I.e. you must take the QTLs used for the previous
 #' stages of PathWAS and then use those SNPs to create weights using the genotype of your cohort.
@@ -37,9 +37,11 @@
 #'
 #' @export
 pathWAS_predictR = function(predict_PRS,
-                            path_qtl_ovgenes, path_select,
+                            path_qtl_ovgenes,
+                            path_select,
                             mr_lasso_res,
-                            endpoint_omics, end_point,
+                            endpoint_omics,
+                            end_point,
                             run_sig_MR = FALSE,
                             sig_mr_genelist = NULL
                             ) {
@@ -94,18 +96,17 @@ pathWAS_predictR = function(predict_PRS,
 
       }
 
-    } else if (length(sig_mr_genelist) == 0){
+    } else if (length(sig_mr_genelist) <= 1){
 
       sig_predict_PRS_comb = NULL
-      sig_predict_geneno = 0
+      sig_predict_geneno = length(sig_mr_genelist)
 
     }
-
   }
 
   test_model = prs_mergeR(predict_PRS_comb,
-                          endpoint_omics,
-                          end_point)
+                            endpoint_omics,
+                            end_point)
   test_sum = summary(test_model)
   test_p = lmp(test_model)
 
@@ -117,8 +118,8 @@ pathWAS_predictR = function(predict_PRS,
   } else if (!(is.null(sig_predict_PRS_comb))) {
 
     sig_test_model = prs_mergeR(sig_predict_PRS_comb,
-                                endpoint_omics,
-                                end_point)
+                                  endpoint_omics,
+                                  end_point)
     sig_test_sum = summary(sig_test_model)
     sig_test_p = lmp(sig_test_model)
 
