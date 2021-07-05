@@ -52,7 +52,7 @@ pathWAS_predictR = function(predict_PRS,
 
   all_predict_PRS = as.data.frame(predict_PRS[, PRS_path_ovgenes])
 
-  predict_PRS_genedex = path_qtl_ovgenes %in% colnames(all_predict_PRS)
+  predict_PRS_genedex = PRS_path_ovgenes %in% colnames(all_predict_PRS)
 
   for (num_expos in 1:ncol(all_predict_PRS)){
 
@@ -79,7 +79,7 @@ pathWAS_predictR = function(predict_PRS,
 
         colnames(sig_predict_PRS) = sig_ovgenes_PRS
 
-        sig_predict_PRS_genedex = path_cohort_ovgenes %in% colnames(sig_predict_PRS)
+        sig_predict_PRS_genedex = PRS_path_ovgenes %in% colnames(sig_predict_PRS)
 
         for (num_expos in 1:ncol(sig_predict_PRS)){
 
@@ -104,9 +104,9 @@ pathWAS_predictR = function(predict_PRS,
     }
   }
 
-  test_model = prs_mergeR(predict_PRS_comb,
-                            endpoint_omics,
-                            end_point)
+  test_model = PathWAS:::prs_mergeR(predict_PRS_comb,
+                                    endpoint_omics,
+                                    end_point)
   test_sum = summary(test_model)
   test_p = lmp(test_model)
 
@@ -117,9 +117,9 @@ pathWAS_predictR = function(predict_PRS,
 
   } else if (!(is.null(sig_predict_PRS_comb))) {
 
-    sig_test_model = prs_mergeR(sig_predict_PRS_comb,
-                                  endpoint_omics,
-                                  end_point)
+    sig_test_model = PathWAS:::prs_mergeR(sig_predict_PRS_comb,
+                                          endpoint_omics,
+                                          end_point)
     sig_test_sum = summary(sig_test_model)
     sig_test_p = lmp(sig_test_model)
 

@@ -209,7 +209,7 @@ pathWAS_MR = function(genelist,
 
     if (all(as.vector(snp_se_matrix[, colcheck]) == 1)){
 
-      col_rms = c(col_rms, colcheck)
+      col_rms = c(col_rms, as.numeric(colcheck))
 
       if (verbose == TRUE){
 
@@ -219,8 +219,13 @@ pathWAS_MR = function(genelist,
     }
   }
 
-  snp_beta_matrix = snp_beta_matrix[, -col_rms]
-  snp_se_matrix = snp_se_matrix[, -col_rms]
+  if (length(col_rms) < 1){
+
+    snp_beta_matrix = snp_beta_matrix[, -col_rms]
+    snp_se_matrix = snp_se_matrix[, -col_rms]
+
+  }
+
 
   if (ncol(snp_beta_matrix) == 1){
 
@@ -302,7 +307,7 @@ pathWAS_MR = function(genelist,
   }
 
   mr_sig_index = mr_lasso_res$Pvalue < 0.05
-  sig_mr_genelist = path_cohort_ovgenes[mr_sig_index]
+  sig_mr_genelist = mr_lasso_res@Exposure[mr_sig_index]
 
   return(c(mr_lasso_res, sig_mr_genelist))
 
