@@ -68,6 +68,6 @@ omics_MungeR = function(endpoint_omics,
                                  by = omics_SNPCol
                                  )
 
-  return(omics_snps)
+  return(unique(omics_snps))
 
 }

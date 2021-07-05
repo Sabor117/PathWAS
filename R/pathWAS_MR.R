@@ -170,7 +170,7 @@ pathWAS_MR = function(genelist,
       if (exists("all_gene_sumstats")){
 
         snp_gene_beta = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
-        snp_gene_se = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
+        snp_gene_se = all_gene_sumstats$se[all_gene_sumstats$rsid == currSnp]
 
       }
 
@@ -202,6 +202,25 @@ pathWAS_MR = function(genelist,
 
   snp_beta_matrix = as.matrix(snp_beta_matrix)
   snp_se_matrix = as.matrix(snp_se_matrix)
+
+  col_rms = c()
+
+  for (colcheck in 1:ncol(snp_se_matrix)){
+
+    if (all(as.vector(snp_se_matrix[, colcheck]) == 1)){
+
+      col_rms = c(col_rms, colcheck)
+
+      if (verbose == TRUE){
+
+        cat(paste0("\n\nGene ", colnames(snp_se_matrix)[colcheck], " has no overlapping SNPs.\n___________\n\n"))
+
+      }
+    }
+  }
+
+  snp_beta_matrix = snp_beta_matrix[, -col_rms]
+  snp_se_matrix = snp_se_matrix[, -col_rms]
 
   if (ncol(snp_beta_matrix) == 1){
 
