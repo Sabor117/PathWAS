@@ -203,6 +203,12 @@ pathWAS_MR = function(genelist,
   snp_beta_matrix = as.matrix(snp_beta_matrix)
   snp_se_matrix = as.matrix(snp_se_matrix)
 
+  if (all(snp_beta_matrix == 0.0000001)){
+
+    stop("No SNPs overlap between QTLs and omics.\n\n========\n")
+
+  }
+
   col_rms = c()
 
   for (colcheck in 1:ncol(snp_se_matrix)){
@@ -219,7 +225,7 @@ pathWAS_MR = function(genelist,
     }
   }
 
-  if (length(col_rms) < 1){
+  if (length(col_rms) > 0){
 
     snp_beta_matrix = snp_beta_matrix[, -col_rms]
     snp_se_matrix = snp_se_matrix[, -col_rms]
@@ -243,12 +249,6 @@ pathWAS_MR = function(genelist,
 
     snp_beta_matrix = snp_beta_matrix[omics_snps[, omics_SNPCol],]
     snp_se_matrix = snp_se_matrix[omics_snps[, omics_SNPCol],]
-
-  }
-
-  if (all(snp_beta_matrix == 0.0000001)){
-
-    stop("No SNPs overlap between QTLs and omics.\n\n========\n")
 
   }
 
