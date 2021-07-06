@@ -54,6 +54,14 @@ pathWAS_predictR = function(predict_PRS,
 
   all_predict_PRS = as.data.frame(predict_PRS[, PRS_path_ovgenes])
 
+  if (ncol(all_predict_PRS) == 1){
+
+    warning("Only one gene present, will not be representative of a pathway.\n\n")
+
+    colnames(all_predict_PRS) = PRS_path_ovgenes
+
+  }
+
   predict_PRS_genedex = PRS_path_ovgenes %in% colnames(all_predict_PRS)
 
   for (num_expos in 1:ncol(all_predict_PRS)){
