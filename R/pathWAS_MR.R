@@ -83,7 +83,7 @@ pathWAS_MR = function(genelist,
 
     if (is.null(end_point) || is.null(path_select)){
 
-      stop("\n====\nCannot save MR files without input for end-point and pathway.\n====\n")
+      stop("Cannot save MR files without input for end-point and pathway.\n====\n")
 
     }
 
@@ -96,7 +96,7 @@ pathWAS_MR = function(genelist,
 
       if (save_file_locs[savecheck]){
 
-        stop(paste0("\n====\nPlease enter a save file location for ",
+        stop(paste0("Please enter a save file location for ",
                     selected_saves_names[savecheck],
                     ".\n====\n")
         )
@@ -231,7 +231,6 @@ pathWAS_MR = function(genelist,
     snp_se_matrix = snp_se_matrix[, -col_rms]
 
   }
-
 
   if (ncol(snp_beta_matrix) == 1){
 

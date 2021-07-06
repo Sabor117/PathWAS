@@ -46,6 +46,8 @@ pathWAS_predictR = function(predict_PRS,
                             sig_mr_genelist = NULL
                             ) {
 
+  PathWAS:::heading("Come and see the violence inherent in the system. Help! Help! I'm being oppressed!")
+
   PRS_iids = predict_PRS$iid
 
   PRS_path_ovgenes = path_qtl_ovgenes[path_qtl_ovgenes %in% colnames(predict_PRS)]
