@@ -50,7 +50,7 @@ pathWAS_predictR = function(predict_PRS,
 
   PRS_iids = predict_PRS$iid
 
-  PRS_path_ovgenes = path_qtl_ovgenes[path_qtl_ovgenes %in% colnames(predict_PRS)]
+  PRS_path_ovgenes = unique(path_qtl_ovgenes[path_qtl_ovgenes %in% colnames(predict_PRS)])
 
   all_predict_PRS = as.data.frame(predict_PRS[, PRS_path_ovgenes])
 
@@ -79,7 +79,7 @@ pathWAS_predictR = function(predict_PRS,
 
     if (length(sig_mr_genelist) > 1){
 
-      sig_ovgenes_PRS = sig_mr_genelist[sig_mr_genelist %in% colnames(predict_PRS)]
+      sig_ovgenes_PRS = unique(sig_mr_genelist[sig_mr_genelist %in% colnames(predict_PRS)])
 
       sig_predict_PRS = as.data.frame(predict_PRS[, sig_ovgenes_PRS])
 

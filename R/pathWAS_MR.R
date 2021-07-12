@@ -227,12 +227,16 @@ pathWAS_MR = function(genelist,
 
   if (length(col_rms) > 0){
 
-    snp_beta_matrix = snp_beta_matrix[, -col_rms]
-    snp_se_matrix = snp_se_matrix[, -col_rms]
+    keep_cols = colnames(snp_beta_matrix)[-col_rms]
+
+    snp_beta_matrix = as.matrix(snp_beta_matrix[, -col_rms])
+    snp_se_matrix = as.matrix(snp_se_matrix[, -col_rms])
 
   }
 
   if (ncol(snp_beta_matrix) == 1){
+
+    colnames(snp_beta_matrix) = keep_cols
 
     matrix_cols = colnames(snp_beta_matrix)
 
