@@ -62,11 +62,11 @@ pathWAS_predictR = function(predict_PRS,
 
   }
 
-  predict_PRS_genedex = PRS_path_ovgenes %in% colnames(all_predict_PRS)
+  #predict_PRS_genedex = PRS_path_ovgenes %in% colnames(all_predict_PRS)
 
   for (num_expos in 1:ncol(all_predict_PRS)){
 
-    all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res@Estimate[predict_PRS_genedex][num_expos]
+    all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res@Estimate[mr_lasso_res@Exposure == colnames(all_predict_PRS)[num_expos]]
 
   }
 
@@ -89,11 +89,11 @@ pathWAS_predictR = function(predict_PRS,
 
         colnames(sig_predict_PRS) = sig_ovgenes_PRS
 
-        sig_predict_PRS_genedex = PRS_path_ovgenes %in% colnames(sig_predict_PRS)
+        #sig_predict_PRS_genedex = PRS_path_ovgenes %in% colnames(sig_predict_PRS)
 
         for (num_expos in 1:ncol(sig_predict_PRS)){
 
-          sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res@Estimate[sig_predict_PRS_genedex][num_expos]
+          sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res@Estimate[mr_lasso_res@Exposure == colnames(sig_predict_PRS)[num_expos]]
 
         }
 
