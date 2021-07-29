@@ -40,7 +40,7 @@ pathWAS_predictR is the final step in PathWAS. It requires the output from pathW
 gene-exposure values. As well as this it requires two important aspects for creating the final PathWAS model.
 1. It requires your end-point proteomics measures. The end-point selected at the start of PathWAS must be input
 along with a data frame of iids + omics measures. This MUST be in the format of 2 columns: iid, metabolite/protein (where the name
-of the second column is less important).
+of the second column is in the format of: "XXX_omic" where "XXX" can be anything).
 2. It requires polygenic risk scores (PRS) for every gene in your pathway. This has to be created in the same
 cohort for which you have your omics measurements. I.e. you must take the QTLs used for the previous
 stages of PathWAS and then use those SNPs to create weights using the genotype of your cohort.
