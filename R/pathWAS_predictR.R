@@ -56,7 +56,7 @@ pathWAS_predictR = function(predict_PRS,
 
   if (ncol(all_predict_PRS) == 1){
 
-    warning("Only one gene present, will not be representative of a pathway.\n\n")
+    warning("Only one gene present, will not be representative of a pathway.\n===\n")
 
     colnames(all_predict_PRS) = PRS_path_ovgenes
 
@@ -68,6 +68,13 @@ pathWAS_predictR = function(predict_PRS,
 
     all_predict_PRS[, num_expos] = all_predict_PRS[, num_expos] * mr_lasso_res@Estimate[mr_lasso_res@Exposure == colnames(all_predict_PRS)[num_expos]]
 
+    if(any(is.na(all_predict_PRS[, num_expos]))){
+
+      warning(paste0(colnames(all_predict_PRS)[num_expos], " column was removed because all values were NA. Please check that your MR exposure and column name match and double check your MR output.\n===\n"))
+
+      all_predict_PRS[, num_expos] = NULL
+
+    }
   }
 
   predict_geneno = ncol(all_predict_PRS)
@@ -94,6 +101,14 @@ pathWAS_predictR = function(predict_PRS,
         for (num_expos in 1:ncol(sig_predict_PRS)){
 
           sig_predict_PRS[,num_expos] = sig_predict_PRS[,num_expos] * mr_lasso_res@Estimate[mr_lasso_res@Exposure == colnames(sig_predict_PRS)[num_expos]]
+
+          if(any(is.na(sig_predict_PRS[, num_expos]))){
+
+            warning(paste0(colnames(sig_predict_PRS)[num_expos], " column was removed because all values were NA. Please check that your MR exposure and column name match and double check your MR output.\n===\n"))
+
+            sig_predict_PRS[, num_expos] = NULL
+
+          }
 
         }
 

@@ -213,6 +213,8 @@ pathWAS_MR = function(genelist,
 
   for (colcheck in 1:ncol(snp_se_matrix)){
 
+    #cat(paste0(matrixStats::count(!(as.vector(snp_se_matrix[, colcheck]) == 1), TRUE), " SNP values.\n"))
+
     if (all(as.vector(snp_se_matrix[, colcheck]) == 1)){
 
       col_rms = c(col_rms, as.numeric(colcheck))
@@ -232,19 +234,29 @@ pathWAS_MR = function(genelist,
     snp_beta_matrix = as.matrix(snp_beta_matrix[, -col_rms])
     snp_se_matrix = as.matrix(snp_se_matrix[, -col_rms])
 
+    colnames(snp_beta_matrix) = keep_cols
+    colnames(snp_se_matrix) = keep_cols
+
   }
 
   if (ncol(snp_beta_matrix) == 1){
 
-    colnames(snp_beta_matrix) = keep_cols
-
-    matrix_cols = colnames(snp_beta_matrix)
+    matrix_col = colnames(snp_beta_matrix)
 
     snp_beta_matrix = as.matrix(data.frame(snp_beta_matrix[omics_snps[, omics_SNPCol],]))
     snp_se_matrix = as.matrix(data.frame(snp_se_matrix[omics_snps[, omics_SNPCol],]))
 
-    colnames(snp_beta_matrix) = matrix_cols
-    colnames(snp_se_matrix) = matrix_cols
+    colnames(snp_beta_matrix) = matrix_col
+    colnames(snp_se_matrix) = matrix_col
+
+    if (nrow(snp_beta_matrix) < 3){
+
+      cat(paste0("QTL SNP to beta matrix:\n\n"))
+      print(snp_beta_matrix)
+      cat("\n\n")
+      stop("Too few SNPs to use for MR.\n=====\n\n")
+
+    }
 
   } else {
 
