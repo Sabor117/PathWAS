@@ -13,7 +13,8 @@
 #'
 #' @param object MR Input object. Contains a matrix of exposure SNPs to betas, exposure SNPs to SEs and then a list of outcome SNP betas and SEs.
 #'
-
+#' @import foreach glmnet
+#'
 glmnet_enet_mr = function(object,
                           cv = TRUE,
                           lambda = 0.1,
@@ -31,9 +32,9 @@ glmnet_enet_mr = function(object,
 
     if(cv.param == "lambda.1se"){
 
-      search = foreach(i = a, .combine = rbind) %do% {
+      search = foreach::foreach(i = a, .combine = rbind) %do% {
 
-        cv = cv.glmnet(bX, bY,
+        cv = glmnet::cv.glmnet(bX, bY,
                        family = "gaussian",
                        nfold = 10,
                        type.measure = "mse",
@@ -53,8 +54,8 @@ glmnet_enet_mr = function(object,
 
     if(cv.param=="lambda.min"){
 
-      search = foreach(i = a, .combine = rbind) %do% {
-        cv = cv.glmnet(bX, bY,
+      search = foreach::foreach(i = a, .combine = rbind) %do% {
+        cv = glmnet::cv.glmnet(bX, bY,
                        family = "gaussian",
                        nfold = 10,
                        type.measure = "mse",
@@ -70,7 +71,7 @@ glmnet_enet_mr = function(object,
 
     }
 
-    enet.out = glmnet(bX, bY,
+    enet.out = glmnet::glmnet(bX, bY,
                       family = "gaussian",
                       intercept = FALSE,
                       lambda = bestlambda,
@@ -84,7 +85,7 @@ glmnet_enet_mr = function(object,
 
     bestlambda = lambda
     bestalpha = alpha
-    enet.out =  glmnet(bX, bY,
+    enet.out =  glmnet::glmnet(bX, bY,
                        family = "gaussian",
                        intercept = FALSE,
                        lambda = bestlambda,

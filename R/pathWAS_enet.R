@@ -255,6 +255,12 @@ pathWAS_enet = function(genelist,
 
   if (is.null(MRInput)){
 
+    if (length(path_cohort_ovgenes) != length(mr_enet_res@Exposure)){
+
+      warning("Input gene list has a different number of exposures than in MR input object.")
+
+    }
+
     mr_enet_res@Exposure = colnames(snp_beta_matrix)
 
   } else {
