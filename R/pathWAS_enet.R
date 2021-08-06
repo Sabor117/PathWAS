@@ -225,7 +225,7 @@ pathWAS_enet = function(genelist,
 
     if (verbose == TRUE){
 
-      heading("Matrices made. Creating MR input.")
+      heading("Matrices made. Creating elastic net MR input.")
 
     }
 
@@ -252,6 +252,14 @@ pathWAS_enet = function(genelist,
   }
 
   mr_enet_res = glmnet_enet_mr(mr_input)
+
+  if (verbose == TRUE){
+
+    cat("\nElastic Net residuals\n___________\n\n")
+
+    print(mr_enet_rest)
+
+  }
 
   if (is.null(MRInput)){
 
