@@ -248,7 +248,6 @@ pathWAS_enet = function(genelist,
 
     path_cohort_ovgenes = unique(genelist[!(genelist %in% end_point)])
 
-
   }
 
   mr_enet_res = glmnet_enet_mr(mr_input)
