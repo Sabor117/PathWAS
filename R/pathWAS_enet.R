@@ -256,7 +256,7 @@ pathWAS_enet = function(genelist,
 
     cat("\nElastic Net residuals\n___________\n\n")
 
-    print(mr_enet_rest)
+    print(mr_enet_res)
 
   }
 
