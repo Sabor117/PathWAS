@@ -105,7 +105,7 @@ pathWAS_MR = function(genelist,
     }
   }
 
-  clumped_snplist = clumped_snps$rsid
+  clumped_snplist = unique(clumped_snps$rsid)
   path_cohort_ovgenes = unique(genelist[!(genelist %in% end_point)])
 
   snp_beta_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
@@ -209,6 +209,38 @@ pathWAS_MR = function(genelist,
 
   }
 
+  ### Checking for empty rows
+
+  row_rms = c()
+
+  for (rowcheck in 1:nrow(snp_se_matrix)){
+
+    if (all(as.vector(snp_se_matrix[rowcheck, ]) == 1)){
+
+      row_rms = c(row_rms, as.numeric(rowcheck))
+
+      if (verbose == TRUE){
+
+        cat(paste0("\n\nSNP ", rownames(snp_se_matrix)[rowcheck], " not found related to any genes.\n___________\n\n"))
+
+      }
+    }
+  }
+
+  if (length(row_rms) > 0){
+
+    keep_rows = rownames(snp_beta_matrix)[-row_rms]
+
+    snp_beta_matrix = as.matrix(snp_beta_matrix[-row_rms, ])
+    snp_se_matrix = as.matrix(snp_se_matrix[-row_rms, ])
+
+    rownames(snp_beta_matrix) = keep_rows
+    rownames(snp_se_matrix) = keep_rows
+
+  }
+
+  ### Checking for empty columns
+
   col_rms = c()
 
   for (colcheck in 1:ncol(snp_se_matrix)){
@@ -243,8 +275,8 @@ pathWAS_MR = function(genelist,
 
     matrix_col = colnames(snp_beta_matrix)
 
-    snp_beta_matrix = as.matrix(data.frame(snp_beta_matrix[omics_snps[, omics_SNPCol],]))
-    snp_se_matrix = as.matrix(data.frame(snp_se_matrix[omics_snps[, omics_SNPCol],]))
+    snp_beta_matrix = as.matrix(data.frame(snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]))
+    snp_se_matrix = as.matrix(data.frame(snp_se_matrix[rownames(snp_se_matrix) %in% omics_snps[, omics_SNPCol],]))
 
     colnames(snp_beta_matrix) = matrix_col
     colnames(snp_se_matrix) = matrix_col
@@ -262,10 +294,16 @@ pathWAS_MR = function(genelist,
 
     omics_snps_list = omics_snps[, omics_SNPCol]
 
-    snp_beta_matrix = snp_beta_matrix[omics_snps[, omics_SNPCol],]
-    snp_se_matrix = snp_se_matrix[omics_snps[, omics_SNPCol],]
+    snp_beta_matrix = snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]
+    snp_se_matrix = snp_se_matrix[rownames(snp_se_matrix) %in% omics_snps[, omics_SNPCol],]
 
   }
+
+  snp_beta_matrix = snp_beta_matrix[order(rownames(snp_beta_matrix)),]
+  snp_se_matrix = snp_se_matrix[order(rownames(snp_se_matrix)),]
+
+  omics_snps = omics_snps[omics_snps[, omics_SNPCol] %in% rownames(snp_beta_matrix),]
+  omics_snps = omics_snps[order(omics_snps[, omics_SNPCol]),]
 
   if (verbose == TRUE){
 
