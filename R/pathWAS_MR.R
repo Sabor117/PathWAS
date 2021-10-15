@@ -299,6 +299,8 @@ pathWAS_MR = function(genelist,
 
   }
 
+  ### Putting SNPs in same order
+
   snp_beta_matrix = snp_beta_matrix[order(rownames(snp_beta_matrix)),]
   snp_se_matrix = snp_se_matrix[order(rownames(snp_se_matrix)),]
 
