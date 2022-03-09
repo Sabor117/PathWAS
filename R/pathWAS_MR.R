@@ -273,6 +273,8 @@ pathWAS_MR = function(genelist,
 
   if (ncol(snp_beta_matrix) == 1){
 
+    warning("Only 1 gene remaining in pathway. Unlikely to be good model.")
+
     matrix_col = colnames(snp_beta_matrix)
 
     snp_beta_matrix = as.matrix(data.frame(snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]))

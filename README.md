@@ -1,23 +1,17 @@
 # PathWAS
 
-Placeholder for poster:
-
-:arrow\_right: ASHG poster is available
+:arrow\_right: ASHG 2021 poster is available
 [here](doc/).
 
-To be included:
+## Contents
 
-1. Purpose of PathWAS
-2. Authors/contributors
-3. How to install
-4. Requirements
-5. Output
 
 ## Contributors
 
 The majority of the code for PathWAS was written by Sebastian May-Wilson while working with Dr. Nicola Pirastu.
 
 The package relies on numerous other packages including: MendelianRandomization, KEGGgraph, KEGGrest and ieugwasr. It also includes code written by Dr. Verena Zuber.
+
 
 ## Overview
 
@@ -26,6 +20,7 @@ The package relies on numerous other packages including: MendelianRandomization,
 This is a multi-step process which ideally can be run from top to bottom with the correct data in the right format.
 
 This README will describe the rationale of the package, then list the main and important functions of PathWAS, followed finally by a demonstration of how to run the package from top to bottom.
+
 
 ## Rationale
 
@@ -38,10 +33,22 @@ We obtain the expression levels of the pathway genes from QTLs. Again, these can
 These QTLs are then used in a multi-variable MR against your selected end-point -omics. PathWAS was created and tested using in-house proteomics from the SCALLOP consortium and from the ORCADES cohort, but theoretically if you have the GWAS and measurements of another form of omics (e.g. metabolomics or even transcriptomics) you can use these. In this step the SNPs from your QTLs are clumped and then used to create an MR input object. These SNPs are used as instrumental variables for the MR (with the genes as exposures) against the SNPs from your selected omics.
 
 
+## Pre-requisites of PathWAS
+
+This section contains a list of files and inputs (and the format of the various files, where necessary) for the complete running of PathWAS. Some files are highlighted as being optional.
+
+- **-Omics end-point GWAS** - A GWAS of one or more genes selected as a potential end-point for PathWAS. The omics in question can be metabolomics/transcriptomics but both have drawbacks over usage of proteomics. The GWAS must contain the following information: rsID, beta/effect, standard error of effect, effect allele (A1), other allele (A0). This data must be in data frame format, column names are unimportant. 
+
 
 ## Primary functions and requirements of PathWAS
 
-- **`genepath_ListR()`**  
+- **`getpaths_frmEnds()`** - KEGG-SPECIFIC FUNCTION. Takes an input gene or protein (in Entrez gene ID format) and searches the KEGG database for pathways containing the gene. Then outputs all of those pathways for which the protein is an end-point.
+
+- **`smple_paths()`** - KEGG-SPECIFIC FUNCTION. Takes an input pathway and an Entrez end-point gene and refines the selected pathway to a list of simple pathways connected to the end-point. Collectively these simple pathways represent the part of the pathway that is relevant to the chosen end-point, and a list of genes can be extracted from it.
+
+- **`get_tissuegenes()`** - Using the list of simple paths created by `smple_paths()` this function utilizes GTEx TPM expression data to refine the selected genes and simple pathways further to create tissue-specific gene lists. The requires a local downloaded copy of the GTEx TPMs file (found here: https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz)
+
+- **`genepath_ListR()`** - This is a wrapper for the `smple_paths()` and `get_tissuegenes()` functions. Inputting an end-point gene (Entrez ID), a pathway name (KEGG pathway ID) and then the GTEx TPMs file + a BioMart file containing gene translations
 
 
 
