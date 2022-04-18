@@ -39,6 +39,19 @@ This section contains a list of files and inputs (and the format of the various 
 
 - **-Omics end-point GWAS** - A GWAS of one or more genes selected as a potential end-point for PathWAS. The omics in question can be metabolomics/transcriptomics but both have drawbacks over usage of proteomics. The GWAS must contain the following information: rsID, beta/effect, standard error of effect, effect allele (A1), other allele (A0). This data must be in data frame format, column names are unimportant. 
 
+- **cis-QTLs for genes** - Summary stats for cis-QTLs which will be used for the genes of a pathway. These can be either pQTLs or eQTLs however we recommend using data which covers as many genes as possible so that the pathway scores created will incorporate as many of the genes involved as possible. Large possible data sets include GTEx and eQTLgen.
+
+- **Local plink installation** - This is required for clumping the QTL SNPs.
+
+- **Local BioMart data frame of genes and name translations** - Important for numerous steps within PathWAS and given that many different sources of data will use different nomenclature. It may not be required, but often is.
+
+- **List of pathway genes - OPTIONAL** - If you are examining a pre-determined or self-curated pathway you may skip the initial steps of PathWAS (which are designed to search for pathways from a given end-point). If you already have a list of genes making up your pathway leading in to your selected end-point -omics then you can skip these functions.
+
+- **GTEx tissue TPMs - OPTIONAL** - Used by a specific function which will refine your gene list by expression within tissues based on the GTEx TPMs file. This is an optional step.
+
+- **Second, independent measurement of the same -omics** - Used specifically in the final prediction stage of PathWAS. This is not a technical requirement for running PathWAS, but is one we recommend if testing multiple pathways.
+
+
 
 ## Primary functions and requirements of PathWAS
 
