@@ -35,20 +35,37 @@ These QTLs are then used in a multi-variable MR against your selected end-point 
 
 ## Pre-requisites of PathWAS
 
-This section contains a list of files and inputs (and the format of the various files, where necessary) for the complete running of PathWAS. Some files are highlighted as being optional.
+This section contains a list of files and inputs (and the format of the various files, where necessary) for the complete running of PathWAS. Some files/steps are highlighted as being optional.
 
 - **-Omics end-point GWAS** - A GWAS of one or more genes selected as a potential end-point for PathWAS. The omics in question can be metabolomics/transcriptomics but both have drawbacks over usage of proteomics. The GWAS must contain the following information: rsID, beta/effect, standard error of effect, effect allele (A1), other allele (A0). This data must be in data frame format, column names are unimportant. 
 
 
 ## Primary functions and requirements of PathWAS
 
-- **`getpaths_frmEnds()`** - KEGG-SPECIFIC FUNCTION. Takes an input gene or protein (in Entrez gene ID format) and searches the KEGG database for pathways containing the gene. Then outputs all of those pathways for which the protein is an end-point.
+This does list not include functions used within other PathWAS functions.
+
+- **`getpaths_frmEnds()`** - KEGG-SPECIFIC FUNCTION. Takes an input gene or protein (in Entrez gene ID format) and searches the KEGG database for pathways containing the gene. Then outputs all of those pathways for which the protein is an end-point. This is the first step required for running PathWAS.
 
 - **`smple_paths()`** - KEGG-SPECIFIC FUNCTION. Takes an input pathway and an Entrez end-point gene and refines the selected pathway to a list of simple pathways connected to the end-point. Collectively these simple pathways represent the part of the pathway that is relevant to the chosen end-point, and a list of genes can be extracted from it.
 
-- **`get_tissuegenes()`** - Using the list of simple paths created by `smple_paths()` this function utilizes GTEx TPM expression data to refine the selected genes and simple pathways further to create tissue-specific gene lists. The requires a local downloaded copy of the GTEx TPMs file (found here: https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz)
+- **`get_tissuegenes()`** - Using the list of simple paths created by `smple_paths()` this function utilizes GTEx TPM expression data to refine the selected genes and simple pathways further to create tissue-specific gene lists. The requires a local downloaded copy of the GTEx TPMs file (v8 found here: https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz).
 
-- **`genepath_ListR()`** - This is a wrapper for the `smple_paths()` and `get_tissuegenes()` functions. Inputting an end-point gene (Entrez ID), a pathway name (KEGG pathway ID) and then the GTEx TPMs file + a BioMart file containing gene translations
+- **`genepath_ListR()`** - This is a wrapper for the `smple_paths()` and `get_tissuegenes()` functions. Inputting an end-point gene (Entrez ID), a pathway name (KEGG pathway ID) and then the GTEx TPMs file + a BioMart file containing gene translations. This provides the `get_tissuegenes()` output (a data frame of tissue and each gene in the pathway within that tissue, plus a "complete" pathway list). This is the second step required for running PathWAS.
+
+- **`qtl_clumpR()`** - A clumping function. This requires the input of your genes (this can be of the whole pathway output of `genepath_ListR()` or it can be a tissue-specific list) and your QTL SNPs from summary stats (this can be either all SNPs or only significant SNPs, however we recommend using significant associations). This function is a wrapper for the ieugwasr clumping function `ld_clump()` and as such requires a local installation of plink which is used for clumping the SNPs based on LD. This will output a data frame (in the same format as your input summary stats) of the clumped SNPs for your pathway genes. This is the third step required for running PathWAS.
+
+- **`omics_MungeR()`** - Requires the data frame of clumped SNPs from `qtl_clumpR()` and the summary stats for the SNPs of the GWAS from your end-point -omics. This step will examine both data frames and tests whether the betas of the QTL SNPs need to be flipped, based on the alleles. It will output the omics SNPs data frame (refined to only the clumped SNPs) with an additional "flip" column. This is the fourth step required for running PathWAS.
+
+- **`pathWAS_MR()`** - This step requires most pieces of data created thus far in PathWAS. It require the lit of gene names, the clumped SNPs, the omics SNPs (with the added "flip" column) and the end-point protein name. This step will then run the MR of the clumped SNPs against the omics SNPs to provide the gene effect on the pathway. This step also allows the option of saving the various MR inputs and outputs (for repeated use of the function). This is the fifth (and technically final) step of PathWAS. From this you will have a list of genes and their effects on the pathway based on an end-point. These MR effects can then be used to create PRS for each gene to create the overall pathway score.
+
+- **`pathWAS_enet()`** - This step is functionally very similar to `pathWAS_MR()` but also applies an elastic net penalised regression (function written by Dr. Verena Zuber <v.zuber(at)imperial.ac.uk>). This is an additional and optional version of the PathWAS MR which did not yield results as robust as the normal MR.
+
+- **`pathWAS_predictR()`** - This is a technically optional step of PathWAS, but one which we recommend carrying out and which was used in the PathWAS paper methodology. This requires an additional, prediction set of -omics data for the same end-point used to create the MR scores. You will need to use your initial set of -omics to create PRS for the end-point and then also have the measurements of the same -omic in the second data set. Inputting both of these, along with your MR effect sizes and the function will test how well your gene scores created from your first set of -omics predict the values of the second set. This step is not required for PathWAS (as the intention is not to have pathway PRS which can predict the end-point protein) but is a reasonable method of testing which pathways from your data are the best.
+
+
+
+
+
 
 
 
