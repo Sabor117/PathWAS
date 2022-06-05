@@ -16,7 +16,7 @@
 #' @import MendelianRandomization
 #'
 #' @export
-pathWAS_MR = function(mr_input_check,
+pathWAS_snpCheck = function(mr_input_check,
                         verbose = TRUE
                         ) {
 
