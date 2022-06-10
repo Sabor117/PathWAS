@@ -40,6 +40,29 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
   geneName = unique(readmart$external_gene_name[readmart$entrezgene_id %in% gene])
   pathName = gsub("path:", "", pathway)
 
+  if (length(geneName) > 1){
+
+    warning("genepath_ListR WARN1: Multiple instances of gene name found in BiomaRt. Attempting to prune by HGNC symbol.")
+
+    cat(paste0("\n\nNames for gene found:\n\n"))
+    print(geneName)
+
+    refinedMart = readmart[readmart$entrezgene_id %in% gene,]
+    refinedMart = refinedMart[!(refinedMart$hgnc_symbol == ""),]
+
+    geneName = unique(refinedMart$external_gene_name[refinedMart$entrezgene_id %in% gene])
+
+    if(length(geneName) == 1){
+
+      cat(paste0("\n\nGene name selected: ", geneName,"\n==========\n\n"))
+
+    } else{
+
+      stop(paste0("genepath_ListR Error1: Multiple instances of gene name found in BiomaRt. Unable to prune by HGNC. Please check: ", geneName))
+
+    }
+  }
+
   if (file.exists(paste0(genelistDir, geneName, "_", pathName, "_genelist.txt")) == FALSE){
 
     ### If no existing combination file is found, then it will create one:

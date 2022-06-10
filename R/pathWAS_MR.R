@@ -69,7 +69,7 @@ pathWAS_MR = function(genelist,
                          save_MROutLoc = NULL,
                          save_MRExps = FALSE,
                          save_MRExpsLoc = NULL,
-                         end_point = NULL, path_select = NULL,
+                         end_point = "endprotein", path_select = "pathway",
                          verbose = TRUE
                         ) {
 
