@@ -17,8 +17,6 @@
 #' @param omics_SNPCol character. Name/number of column containing the SNP ID in the omics data frame.
 #' @param omics_BetaCol character. Name/number of column containing the effect size in the omics data frame.
 #' @param omics_SECol character. Name/number of column containing the standard error in the omics data frame.
-#' @param end_point character. Name of end point protein (can be any string). Used for saving purposes if any save variable is set to TRUE.
-#' @param path_select character. Name of pathway (can be any string). Used for saving purposes if any save variable is set to TRUE.
 #'
 #' @examples
 #' ## Having created a list of genes, clumped SNPs and munged your Omics SNPs you can input them in the following way, along with adding the option to save the MR output:
@@ -29,233 +27,234 @@
 #' @export
 #'
 
-pathWAS_MR = function(genelist,
-clumped_snps,
-qtl_sumstats,
-geneCol = "gene",
-omics_snps,
-omics_SNPCol= "rsid", omics_BetaCol = "beta1", omics_SECol = "se",
-save_MRInput = FALSE,
-save_MRInLoc = NULL,
-save_MROutput = FALSE,
-save_MROutLoc = NULL,
-save_MRExps = FALSE,
-save_MRExpsLoc = NULL,
-end_point = "endprotein", path_select = "pathway",
-verbose = TRUE
-) {
+pathWAS_MRInput = function(genelist,
+                      clumped_snps,
+                      qtl_sumstats,
+                      geneCol = "gene",
+                      omics_snps,
+                      omics_SNPCol= "rsid", omics_BetaCol = "beta1", omics_SECol = "se",
+                      end_point = "endprotein",
+                      verbose = TRUE
+                      ) {
 
-snp_beta_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
-colnames(snp_beta_matrix) = c(path_cohort_ovgenes)
+  clumped_snplist = unique(clumped_snps$rsid)
+  path_cohort_ovgenes = unique(genelist[!(genelist %in% end_point)])
 
-snp_se_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
-colnames(snp_se_matrix) = c(path_cohort_ovgenes)
+  snp_beta_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
+  colnames(snp_beta_matrix) = c(path_cohort_ovgenes)
 
-if (verbose == TRUE){
+  snp_se_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
+  colnames(snp_se_matrix) = c(path_cohort_ovgenes)
 
-  heading("Creating SNP beta and SE matrices.")
+  if (verbose == TRUE){
 
-}
-
-for (nsnp in 1:length(clumped_snplist)){
-
-  if (nsnp %% 100 == 0 && verbose == TRUE){
-
-    cat(paste0("\nNow working on SNP: ", nsnp, "\n====\n"))
+    heading("Creating SNP beta and SE matrices.")
 
   }
 
-  currSnp = clumped_snplist[nsnp]
+  for (nsnp in 1:length(clumped_snplist)){
 
-  snpRow_beta = c()
-  snpRow_se = c()
+    if (nsnp %% 100 == 0 && verbose == TRUE){
 
-  for (ngene in 1:length(path_cohort_ovgenes)){
+      cat(paste0("\nNow working on SNP: ", nsnp, "\n====\n"))
 
-    all_gene_sumstats = NULL
+    }
 
-    currGene = path_cohort_ovgenes[ngene]
+    currSnp = clumped_snplist[nsnp]
 
-    ### EDIT: Individual gene file
+    snpRow_beta = c()
+    snpRow_se = c()
 
-    if (grepl("%%%", qtl_sumstats)){
+    for (ngene in 1:length(path_cohort_ovgenes)){
 
-      if (file.exists(gsub("%%%", currGene, qtl_sumstats))){
+      all_gene_sumstats = NULL
 
-        all_gene_sumstats = data.table::fread(gsub("%%%", currGene, qtl_sumstats),
-                                              data.table = FALSE)
+      currGene = path_cohort_ovgenes[ngene]
 
+      ### EDIT: Individual gene file
+
+      if (grepl("%%%", qtl_sumstats)){
+
+        if (file.exists(gsub("%%%", currGene, qtl_sumstats))){
+
+          all_gene_sumstats = data.table::fread(gsub("%%%", currGene, qtl_sumstats),
+                                                data.table = FALSE)
+
+        } else {
+
+          snp_gene_beta = NULL
+
+        }
       } else {
 
-        snp_gene_beta = NULL
+        all_qtl_sumstats = data.table::fread(qtl_sumstats,
+                                             data.table = FALSE)
+
+        all_gene_sumstats = all_qtl_sumstats[currGene %in% all_qtl_sumstats[, geneCol],]
+
+        if (nrow(all_gene_sumstats) == 0){
+
+          snp_gene_beta = NULL
+
+        }
+      }
+
+      if (exists("all_gene_sumstats")){
+
+        snp_gene_beta = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
+        snp_gene_se = all_gene_sumstats$se[all_gene_sumstats$rsid == currSnp]
 
       }
-    } else {
 
-      all_qtl_sumstats = data.table::fread(qtl_sumstats,
-                                           data.table = FALSE)
+      if (length(snp_gene_beta) == 0){
 
-      all_gene_sumstats = all_qtl_sumstats[currGene %in% all_qtl_sumstats[, geneCol],]
+        snp_gene_beta = 0.0000001
+        snp_gene_se = 1
 
-      if (nrow(all_gene_sumstats) == 0){
+      }
 
-        snp_gene_beta = NULL
+      snpRow_beta = c(snpRow_beta, snp_gene_beta)
+      snpRow_se = c(snpRow_se, snp_gene_se)
+
+    }
+
+    snpRow_beta = t(data.frame(snpRow_beta))
+    colnames(snpRow_beta) = path_cohort_ovgenes
+    rownames(snpRow_beta) = currSnp
+
+    snp_beta_matrix = rbind(snp_beta_matrix, snpRow_beta)
+
+    snpRow_se = t(data.frame(snpRow_se))
+    colnames(snpRow_se) = path_cohort_ovgenes
+    rownames(snpRow_se) = currSnp
+
+    snp_se_matrix = rbind(snp_se_matrix, snpRow_se)
+
+  }
+
+  snp_beta_matrix = as.matrix(snp_beta_matrix)
+  snp_se_matrix = as.matrix(snp_se_matrix)
+
+  if (all(snp_beta_matrix == 0.0000001)){
+
+    stop("No SNPs overlap between QTLs and omics.\n\n========\n")
+
+  }
+
+  ### Checking for empty rows
+
+  row_rms = c()
+
+  for (rowcheck in 1:nrow(snp_se_matrix)){
+
+    if (all(as.vector(snp_se_matrix[rowcheck, ]) == 1)){
+
+      row_rms = c(row_rms, as.numeric(rowcheck))
+
+      if (verbose == TRUE){
+
+        cat(paste0("\n\nSNP ", rownames(snp_se_matrix)[rowcheck], " not found related to any genes.\n___________\n\n"))
 
       }
     }
+  }
 
-    if (exists("all_gene_sumstats")){
+  if (length(row_rms) > 0){
 
-      snp_gene_beta = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
-      snp_gene_se = all_gene_sumstats$se[all_gene_sumstats$rsid == currSnp]
+    keep_rows = rownames(snp_beta_matrix)[-row_rms]
 
-    }
+    snp_beta_matrix = as.matrix(snp_beta_matrix[-row_rms, ])
+    snp_se_matrix = as.matrix(snp_se_matrix[-row_rms, ])
 
-    if (length(snp_gene_beta) == 0){
-
-      snp_gene_beta = 0.0000001
-      snp_gene_se = 1
-
-    }
-
-    snpRow_beta = c(snpRow_beta, snp_gene_beta)
-    snpRow_se = c(snpRow_se, snp_gene_se)
+    rownames(snp_beta_matrix) = keep_rows
+    rownames(snp_se_matrix) = keep_rows
 
   }
 
-  snpRow_beta = t(data.frame(snpRow_beta))
-  colnames(snpRow_beta) = path_cohort_ovgenes
-  rownames(snpRow_beta) = currSnp
+  ### Checking for empty columns
 
-  snp_beta_matrix = rbind(snp_beta_matrix, snpRow_beta)
+  col_rms = c()
 
-  snpRow_se = t(data.frame(snpRow_se))
-  colnames(snpRow_se) = path_cohort_ovgenes
-  rownames(snpRow_se) = currSnp
+  for (colcheck in 1:ncol(snp_se_matrix)){
 
-  snp_se_matrix = rbind(snp_se_matrix, snpRow_se)
+    #cat(paste0(matrixStats::count(!(as.vector(snp_se_matrix[, colcheck]) == 1), TRUE), " SNP values.\n"))
 
-}
+    if (all(as.vector(snp_se_matrix[, colcheck]) == 1)){
 
-snp_beta_matrix = as.matrix(snp_beta_matrix)
-snp_se_matrix = as.matrix(snp_se_matrix)
+      col_rms = c(col_rms, as.numeric(colcheck))
 
-if (all(snp_beta_matrix == 0.0000001)){
+      if (verbose == TRUE){
 
-  stop("No SNPs overlap between QTLs and omics.\n\n========\n")
+        cat(paste0("\n\nGene ", colnames(snp_se_matrix)[colcheck], " has no overlapping SNPs.\n___________\n\n"))
 
-}
-
-### Checking for empty rows
-
-row_rms = c()
-
-for (rowcheck in 1:nrow(snp_se_matrix)){
-
-  if (all(as.vector(snp_se_matrix[rowcheck, ]) == 1)){
-
-    row_rms = c(row_rms, as.numeric(rowcheck))
-
-    if (verbose == TRUE){
-
-      cat(paste0("\n\nSNP ", rownames(snp_se_matrix)[rowcheck], " not found related to any genes.\n___________\n\n"))
-
+      }
     }
   }
-}
 
-if (length(row_rms) > 0){
+  if (length(col_rms) > 0){
 
-  keep_rows = rownames(snp_beta_matrix)[-row_rms]
+    keep_cols = colnames(snp_beta_matrix)[-col_rms]
 
-  snp_beta_matrix = as.matrix(snp_beta_matrix[-row_rms, ])
-  snp_se_matrix = as.matrix(snp_se_matrix[-row_rms, ])
+    snp_beta_matrix = as.matrix(snp_beta_matrix[, -col_rms])
+    snp_se_matrix = as.matrix(snp_se_matrix[, -col_rms])
 
-  rownames(snp_beta_matrix) = keep_rows
-  rownames(snp_se_matrix) = keep_rows
+    colnames(snp_beta_matrix) = keep_cols
+    colnames(snp_se_matrix) = keep_cols
 
-}
+  }
 
-### Checking for empty columns
+  if (ncol(snp_beta_matrix) == 1){
 
-col_rms = c()
+    warning("Only 1 gene remaining in pathway. Unlikely to be good model.")
 
-for (colcheck in 1:ncol(snp_se_matrix)){
+    matrix_col = colnames(snp_beta_matrix)
 
-  #cat(paste0(matrixStats::count(!(as.vector(snp_se_matrix[, colcheck]) == 1), TRUE), " SNP values.\n"))
+    snp_beta_matrix = as.matrix(data.frame(snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]))
+    snp_se_matrix = as.matrix(data.frame(snp_se_matrix[rownames(snp_se_matrix) %in% omics_snps[, omics_SNPCol],]))
 
-  if (all(as.vector(snp_se_matrix[, colcheck]) == 1)){
+    colnames(snp_beta_matrix) = matrix_col
+    colnames(snp_se_matrix) = matrix_col
 
-    col_rms = c(col_rms, as.numeric(colcheck))
+    if (nrow(snp_beta_matrix) < 3){
 
-    if (verbose == TRUE){
-
-      cat(paste0("\n\nGene ", colnames(snp_se_matrix)[colcheck], " has no overlapping SNPs.\n___________\n\n"))
+      cat(paste0("QTL SNP to beta matrix:\n\n"))
+      print(snp_beta_matrix)
+      cat("\n\n")
+      stop("Too few SNPs to use for MR.\n=====\n\n")
 
     }
-  }
-}
 
-if (length(col_rms) > 0){
+  } else {
 
-  keep_cols = colnames(snp_beta_matrix)[-col_rms]
+    omics_snps_list = omics_snps[, omics_SNPCol]
 
-  snp_beta_matrix = as.matrix(snp_beta_matrix[, -col_rms])
-  snp_se_matrix = as.matrix(snp_se_matrix[, -col_rms])
-
-  colnames(snp_beta_matrix) = keep_cols
-  colnames(snp_se_matrix) = keep_cols
-
-}
-
-if (ncol(snp_beta_matrix) == 1){
-
-  warning("Only 1 gene remaining in pathway. Unlikely to be good model.")
-
-  matrix_col = colnames(snp_beta_matrix)
-
-  snp_beta_matrix = as.matrix(data.frame(snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]))
-  snp_se_matrix = as.matrix(data.frame(snp_se_matrix[rownames(snp_se_matrix) %in% omics_snps[, omics_SNPCol],]))
-
-  colnames(snp_beta_matrix) = matrix_col
-  colnames(snp_se_matrix) = matrix_col
-
-  if (nrow(snp_beta_matrix) < 3){
-
-    cat(paste0("QTL SNP to beta matrix:\n\n"))
-    print(snp_beta_matrix)
-    cat("\n\n")
-    stop("Too few SNPs to use for MR.\n=====\n\n")
+    snp_beta_matrix = snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]
+    snp_se_matrix = snp_se_matrix[rownames(snp_se_matrix) %in% omics_snps[, omics_SNPCol],]
 
   }
 
-} else {
+  ### Putting SNPs in same order
 
-  omics_snps_list = omics_snps[, omics_SNPCol]
+  snp_beta_matrix = snp_beta_matrix[order(rownames(snp_beta_matrix)),]
+  snp_se_matrix = snp_se_matrix[order(rownames(snp_se_matrix)),]
 
-  snp_beta_matrix = snp_beta_matrix[rownames(snp_beta_matrix) %in% omics_snps[, omics_SNPCol],]
-  snp_se_matrix = snp_se_matrix[rownames(snp_se_matrix) %in% omics_snps[, omics_SNPCol],]
+  omics_snps = omics_snps[omics_snps[, omics_SNPCol] %in% rownames(snp_beta_matrix),]
+  omics_snps = omics_snps[order(omics_snps[, omics_SNPCol]),]
+
+  if (verbose == TRUE){
+
+    heading("Matrices made. Creating MR input.")
+
+  }
+
+  omics_betas = omics_snps[, omics_BetaCol] * omics_snps$FLIP
+  omics_se = omics_snps[, omics_SECol]
+
+  mr_input = MendelianRandomization::mr_mvinput(bx = snp_beta_matrix,
+                                                bxse = snp_se_matrix,
+                                                by = omics_betas,
+                                                byse = omics_se)
+
+  return(mr_input)
 
 }
-
-### Putting SNPs in same order
-
-snp_beta_matrix = snp_beta_matrix[order(rownames(snp_beta_matrix)),]
-snp_se_matrix = snp_se_matrix[order(rownames(snp_se_matrix)),]
-
-omics_snps = omics_snps[omics_snps[, omics_SNPCol] %in% rownames(snp_beta_matrix),]
-omics_snps = omics_snps[order(omics_snps[, omics_SNPCol]),]
-
-if (verbose == TRUE){
-
-  heading("Matrices made. Creating MR input.")
-
-}
-
-omics_betas = omics_snps[, omics_BetaCol] * omics_snps$FLIP
-omics_se = omics_snps[, omics_SECol]
-
-mr_input = MendelianRandomization::mr_mvinput(bx = snp_beta_matrix,
-                                              bxse = snp_se_matrix,
-                                              by = omics_betas,
-                                              byse = omics_se)
