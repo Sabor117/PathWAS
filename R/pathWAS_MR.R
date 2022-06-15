@@ -105,6 +105,29 @@ pathWAS_MR = function(genelist,
     }
   }
 
+  if (verbose == TRUE){
+
+    heading("Ensuring SNPs overlap between end-point and clumped input.")
+
+  }
+
+  if (verbose == TRUE){
+
+    missing_clumped = clumped_snps[!(clumped_snps$rsid %in% omics_snps[, omics_SNPCol]),]
+    missing_omics = omics_snps[!(omics_snps[, omics_SNPCol] %in% clumped_snps$rsid),]
+
+    cat(paste0("\nThe following SNPs were in the clumped SNPs and not the omics:\n\n"))
+    print(missing_clumped$rsid)
+    cat("\n\n")
+    cat(paste0("\nThe following SNPs were in the omics SNPs and not the clumped:\n\n"))
+    print(missing_omics[, omics_SNPCol])
+    cat("\n\n=============\n\n")
+
+  }
+
+  clumped_snps = clumped_snps[clumped_snps$rsid %in% omics_snps[, omics_SNPCol],]
+  omics_snps = omics_snps[omics_snps[, omics_SNPCol] %in% clumped_snps$rsid,]
+
   clumped_snplist = unique(clumped_snps$rsid)
   path_cohort_ovgenes = unique(genelist[!(genelist %in% end_point)])
 
@@ -244,8 +267,6 @@ pathWAS_MR = function(genelist,
   col_rms = c()
 
   for (colcheck in 1:ncol(snp_se_matrix)){
-
-    #cat(paste0(matrixStats::count(!(as.vector(snp_se_matrix[, colcheck]) == 1), TRUE), " SNP values.\n"))
 
     if (all(as.vector(snp_se_matrix[, colcheck]) == 1)){
 
