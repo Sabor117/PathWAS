@@ -1,7 +1,7 @@
 #' Conduct Mendelian randomisation of clumped SNPs from pathway genes on end-point omics
 #'
 #' @description
-#' Inputs aqnd combines aspects from your QTL SNPs, clumped SNPs, pathway genes, and omics summary
+#' Inputs and combines aspects from your QTL SNPs, clumped SNPs, pathway genes, and omics summary
 #' stats (plus flip status) and conducts MR between these, outputting the MR for model.
 #'
 #' @details
