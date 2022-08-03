@@ -37,7 +37,7 @@ smple_paths = function(pathway,
 
   cat("Lookup KEGG.\n\n")
 
-  pathway_kgml =	try(KEGGgraph::retrieveKGML(path_check, ### Search for given pathway
+  pathway_kgml = try(KEGGgraph::retrieveKGML(path_check, ### Search for given pathway
                                   organism = "hsa", ### Organism
                                   destfile = tmp_fl, ### This is necessary for some reason
                                   method = "wget", ### Utilises wget method
