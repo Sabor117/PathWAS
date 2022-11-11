@@ -102,6 +102,8 @@ getpaths_frmEnds = function(gene_entrez){
     }
   }
 
+  keeps = unlist(keeps)
+
   if (length(keeps) > 0){
 
     keeps = data.frame(pathway = keeps)
