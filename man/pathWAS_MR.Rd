@@ -19,8 +19,8 @@ pathWAS_MR(
   save_MROutLoc = NULL,
   save_MRExps = FALSE,
   save_MRExpsLoc = NULL,
-  end_point = NULL,
-  path_select = NULL,
+  end_point = "endprotein",
+  path_select = "pathway",
   verbose = TRUE
 )
 }
@@ -58,7 +58,7 @@ pathWAS_MR(
 \item{path_select}{character. Name of pathway (can be any string). Used for saving purposes if any save variable is set to TRUE.}
 }
 \description{
-Inputs aqnd combines aspects from your QTL SNPs, clumped SNPs, pathway genes, and omics summary
+Inputs and combines aspects from your QTL SNPs, clumped SNPs, pathway genes, and omics summary
 stats (plus flip status) and conducts MR between these, outputting the MR for model.
 }
 \details{
