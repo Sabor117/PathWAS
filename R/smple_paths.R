@@ -20,7 +20,7 @@
 #'
 #' smple_paths(pathway = path:hsa05131, gene_entrez = 3606, keep_routes = FALSE)
 #'
-#' @import KEGGgraph igraph KEGGlincs
+#' @import KEGGgraph igraph KEGGlincs splitstackshape
 #'
 #' @export
 smple_paths = function(pathway,
@@ -45,11 +45,8 @@ smple_paths = function(pathway,
 
   ### Convert KEGGlincs data into simplified table
 
-  pathway_table = data.frame(in_node = pathway_edges$entry1symbol,
-                             out_node = pathway_edges$entry2symbol)
-
-  pathway_table = cSplit(pathway_table, "in_node", ",", "long")
-  pathway_table = cSplit(pathway_table, "out_node", ",", "long")
+  pathway_table = data.frame(in_node = kgml_edges$entry1symbol,
+                             out_node = kgml_edges$entry2symbol)
 
   pathway_table$in_name = unlist(kgml_mappings$LABEL[match(pathway_table$in_node, kgml_mappings$entrySYMBOL)])
   pathway_table$out_name = unlist(kgml_mappings$LABEL[match(pathway_table$out_node, kgml_mappings$entrySYMBOL)])
