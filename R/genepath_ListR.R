@@ -86,6 +86,8 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     all_smple_paths_genes = unique(unlist(all_simple_paths))
 
+    all_smple_paths_genes = pathway_genes$kegg_id[pathway_genes$external_gene_name %in% all_smple_paths_genes]
+
     ### Obtain genes specific to tissues within pathway
     ### Requires expression data (TPMs) from GTEx for each tissue
     ### tissue variable must be in GTEx format
@@ -101,7 +103,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
       heading("All tissues specified, creating a list of all tissues + gene-lists.")
 
-      tissue_genes_list = get_tissuegenes(gtex_tpms, pathway_genes, all_simple_paths) ### tissue_genes_list outputs as a list of lists
+      tissue_genes_list = get_tissuegenes(gtex_tpms, pathway_genes, all_smple_paths_genes) ### tissue_genes_list outputs as a list of lists
 
       if (length(tissue_genes_list) == 0){
 
@@ -148,7 +150,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
       ### Creates tissue_gene list but only for specified tissue
 
-      tissue_genes_list = get_tissuegenes(gtex_tpms, pathway_genes, all_simple_paths, tissue)
+      tissue_genes_list = get_tissuegenes(gtex_tpms, pathway_genes, all_simple_paths_genes, tissue)
 
       if (length(tissue_genes_list) == 0){
 
