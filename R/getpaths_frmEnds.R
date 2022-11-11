@@ -52,13 +52,19 @@ getpaths_frmEnds = function(gene_entrez){
 
       pathway_check = pathfind[[endPI]]
 
-      tmp_fl = tempfile()
-
       cat(paste0("Lookup KEGG pathway for ", gene_entrez," + ", pathway_check, ".\n\n"))
 
       pathway_check = gsub("path:", "", pathway_check)
 
       kgml_file = KEGGlincs::get_KGML(pathway_check)
+
+      if (is.na(kgml_file)){
+
+        warning(paste0("getpaths_frmEnds WARN1: No KEGGlincs KGML nodes or edges for pathway: ", pathway_check))
+
+        next
+
+      }
 
       kgml_mappings = KEGGlincs::expand_KEGG_mappings(kgml_file, FALSE)
 
