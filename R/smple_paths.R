@@ -20,7 +20,7 @@
 #'
 #' smple_paths(pathway = path:hsa05131, gene_entrez = 3606, keep_routes = FALSE)
 #'
-#' @import KEGGgraph igraph
+#' @import KEGGgraph igraph KEGGlincs
 #'
 #' @export
 smple_paths = function(pathway,
@@ -31,38 +31,38 @@ smple_paths = function(pathway,
   cat("Come Sergei!\n\n")
 
   path_check = pathway
-  geneKEGG = paste0("hsa:", gene_entrez)
 
-  tmp_fl = tempfile() ### Necessary for retrieveKGML
+  cat("Lookup with KEGGlincs.\n\n")
 
-  cat("Lookup KEGG.\n\n")
+  kgml_file = KEGGlincs::get_KGML(path_check)
 
-  pathway_kgml = try(KEGGgraph::retrieveKGML(path_check, ### Search for given pathway
-                                  organism = "hsa", ### Organism
-                                  destfile = tmp_fl, ### This is necessary for some reason
-                                  method = "wget", ### Utilises wget method
-                                  quiet = TRUE))
+  kgml_mappings = KEGGlincs::expand_KEGG_mappings(kgml_file, FALSE)
 
-  pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml, ### pathway kgml file
-                                 expandGenes = TRUE, ### expand paralogue nodes
-                                 genesOnly = FALSE) ### include connections to things which aren't genes
+  kgml_edges = KEGGlincs::expand_KEGG_edges(kgml_file, kgml_mappings)
+  pathway_edges = KEGGlincs::edge_mapping_info(kgml_edges)
 
   cat("Lookup successful.\n\n")
 
-  ### Convert graph file into data frame
+  ### Convert KEGGlincs data into simplified table
 
-  pathway_table = igraph::as_long_data_frame(igraph::igraph.from.graphNEL(pathway_info))
+  pathway_table = data.frame(in_node = pathway_edges$entry1symbol,
+                             out_node = pathway_edges$entry2symbol)
 
-  ### Convert graph object into igraph object
-  #info_igraph = igraph::igraph.from.graphNEL(pathway_info)
+  pathway_table = cSplit(pathway_table, "in_node", ",", "long")
+  pathway_table = cSplit(pathway_table, "out_node", ",", "long")
+
+  pathway_table$in_name = unlist(kgml_mappings$LABEL[match(pathway_table$in_node, kgml_mappings$entrySYMBOL)])
+  pathway_table$out_name = unlist(kgml_mappings$LABEL[match(pathway_table$out_node, kgml_mappings$entrySYMBOL)])
+
+  pathway_table = as.data.frame(pathway_table)
 
   ### Convert table into simplified table
 
-  last_layer = pathway_table[pathway_table$to_name == geneKEGG,]
+  last_layer = pathway_table[pathway_table$out_node == gene_entrez,]
 
   simplified_pathway_table = last_layer
 
-  connected_nodes = unique(last_layer$from_name)
+  connected_nodes = unique(last_layer$in_node)
   gene_check = connected_nodes
 
   repetitions = 0
@@ -73,10 +73,10 @@ smple_paths = function(pathway,
 
     workingNode = connected_nodes[repetitions]
 
-    new_layer = pathway_table[pathway_table$to_name == workingNode,]
+    new_layer = pathway_table[pathway_table$out_node == workingNode,]
     simplified_pathway_table = unique(rbind(simplified_pathway_table, new_layer))
 
-    new_nodes = unique(new_layer$from_name)
+    new_nodes = unique(new_layer$in_node)
     connected_nodes = unique(c(connected_nodes, new_nodes))
 
     if (length(connected_nodes) <= repetitions){
@@ -89,18 +89,19 @@ smple_paths = function(pathway,
   ### Make simplified igraph object from simple table
   ### Convert names back to KEGG names
 
-  connected_nodes = c(connected_nodes, geneKEGG)
+  connected_nodes = c(connected_nodes, gene_entrez)
 
   simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table, directed = TRUE, vertices = NULL)
 
-  vertice_match = unique(data.frame(node = c(simplified_pathway_table$from, simplified_pathway_table$to),
-                                    name = c(simplified_pathway_table$from_name, simplified_pathway_table$to_name)))
+  vertice_match = unique(data.frame(node = c(simplified_pathway_table$in_node, simplified_pathway_table$out_node),
+                                    name = c(simplified_pathway_table$in_name, simplified_pathway_table$out_name)))
 
   igraph::vertex_attr(simplified_igraph)$name = vertice_match$name[match(igraph::vertex_attr(simplified_igraph)$name, as.character(vertice_match$node))]
 
   ### Define "starting" genes by those which are never in the "to" column
 
-  start_genes = which(!(simplified_pathway_table$from %in% simplified_pathway_table$to))
+  start_genes = which(!(simplified_pathway_table$in_node %in% simplified_pathway_table$out_node))
+  end_gene = unique(simplified_pathway_table$out_name[simplified_pathway_table$out_node == gene_entrez])
 
   dir_paths = list() ### Empty list
 
@@ -110,7 +111,7 @@ smple_paths = function(pathway,
 
     ### Select start gene
 
-    nstart_gene = simplified_pathway_table$from_name[start_genes[nstart]]
+    nstart_gene = simplified_pathway_table$in_name[start_genes[nstart]]
 
     ### all_simple_paths function from igraph
     ### Finds/outputs all straight line connections from selected start gene
@@ -118,7 +119,7 @@ smple_paths = function(pathway,
 
     smple_path_n = igraph::all_simple_paths(simplified_igraph,
                                     nstart_gene,
-                                    to = which(igraph::vertex_attr(simplified_igraph)$name == geneKEGG)) ### Select vertice of end point
+                                    to = which(igraph::vertex_attr(simplified_igraph)$name == end_gene)) ### Select vertice of end point
 
     ### Creating list of all simple paths
 
