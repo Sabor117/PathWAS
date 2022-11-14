@@ -13,6 +13,8 @@
 #' @param pathway character. KEGG pathway ID (e.g.: path:hsa05131).
 #' @param gene_entrez character or numeric. Entrez gene ID.
 #' @param keep_routes logical. Should the function output all simple pathways, or output a list of genes.
+#' @param saveDir character. Directory for saving the KGML file downloaded from KEGG
+#' @param delete_tmps logical. After running, delete the KGML downloaded or not.
 #'
 #' @examples
 #' ## Find all simple routes in pathway hsa05131 (Shigellosis) leading to end point 3606 (IL18).
@@ -25,12 +27,15 @@
 #' @export
 smple_paths = function(pathway,
                        gene_entrez,
-                       keep_routes = TRUE){
+                       keep_routes = TRUE,
+                       saveDir = "./",
+                       delete_tmps = FALSE){
 
   cat(paste0("Obtaining all simple paths list for: ", pathway, ".\n"))
   cat("Come Sergei!\n\n")
 
   path_check = pathway
+  path_save_name = gsub("path:", "", path_check)
   geneKEGG = paste0("hsa:", gene_entrez)
 
   tmp_fl = tempfile() ### Necessary for retrieveKGML
@@ -43,26 +48,24 @@ smple_paths = function(pathway,
                                   method = "wget", ### Utilises wget method
                                   quiet = TRUE))
 
-  pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml, ### pathway kgml file
-                                 expandGenes = TRUE, ### expand paralogue nodes
-                                 genesOnly = FALSE) ### include connections to things which aren't genes
+  #pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml, ### pathway kgml file
+  #                               expandGenes = TRUE, ### expand paralogue nodes
+  #                               genesOnly = FALSE) ### include connections to things which aren't genes
+
+  system(paste0("wget ", pathway_kgml, " -O ", saveDir, path_save_name, "_kegg_file.kgml"))
+
+  pathway_info = parseKGML2DataFrame(paste0(saveDir, path_save_name, "_kegg_file.kgml"),
+                                     reactions = TRUE)
 
   cat("Lookup successful.\n\n")
 
-  ### Convert graph file into data frame
-
-  pathway_table = igraph::as_long_data_frame(igraph::igraph.from.graphNEL(pathway_info))
-
-  ### Convert graph object into igraph object
-  #info_igraph = igraph::igraph.from.graphNEL(pathway_info)
-
   ### Convert table into simplified table
 
-  last_layer = pathway_table[pathway_table$to_name == geneKEGG,]
+  last_layer = pathway_table[pathway_table$to == geneKEGG,]
 
   simplified_pathway_table = last_layer
 
-  connected_nodes = unique(last_layer$from_name)
+  connected_nodes = unique(last_layer$from)
   gene_check = connected_nodes
 
   repetitions = 0
@@ -73,10 +76,10 @@ smple_paths = function(pathway,
 
     workingNode = connected_nodes[repetitions]
 
-    new_layer = pathway_table[pathway_table$to_name == workingNode,]
+    new_layer = pathway_table[pathway_table$to == workingNode,]
     simplified_pathway_table = unique(rbind(simplified_pathway_table, new_layer))
 
-    new_nodes = unique(new_layer$from_name)
+    new_nodes = unique(new_layer$from)
     connected_nodes = unique(c(connected_nodes, new_nodes))
 
     if (length(connected_nodes) <= repetitions){
@@ -91,7 +94,9 @@ smple_paths = function(pathway,
 
   connected_nodes = c(connected_nodes, geneKEGG)
 
-  simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table, directed = TRUE, vertices = NULL)
+  simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table,
+                                                    directed = TRUE,
+                                                    vertices = NULL)
 
   vertice_match = unique(data.frame(node = c(simplified_pathway_table$from, simplified_pathway_table$to),
                                     name = c(simplified_pathway_table$from_name, simplified_pathway_table$to_name)))
