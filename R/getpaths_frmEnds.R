@@ -20,7 +20,7 @@
 #' ## Search for pathways in KEGG which have IL18 as an end-point.
 #' getpaths_frmEnds(3606)
 #'
-#' @import KEGGREST KEGGgraph
+#' @import KEGGREST KEGGgraph KEGGlincs splitstackshape
 #'
 #' @export
 getpaths_frmEnds = function(gene_entrez){
@@ -52,62 +52,72 @@ getpaths_frmEnds = function(gene_entrez){
 
       pathway_check = pathfind[[endPI]]
 
-      tmp_fl = tempfile()
-
       cat(paste0("Lookup KEGG pathway for ", gene_entrez," + ", pathway_check, ".\n\n"))
 
-      pathway_kgml =	try(KEGGgraph::retrieveKGML(pathway_check,
-                                      organism = "hsa",
-                                      destfile = tmp_fl,
-                                      method = "wget",
-                                      quiet = TRUE))
+      pathway_check = gsub("path:", "", pathway_check)
 
-      pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml,
-                                     expandGenes = TRUE,
-                                     genesOnly = FALSE)
+      kgml_file = KEGGlincs::get_KGML(pathway_check)
 
-      cat("Lookup successful.\n\n")
+      if (is.na(kgml_file)){
 
-      path_edges = KEGGgraph::edges(pathway_info)
-      path_outdegrees = sapply(KEGGgraph::edges(pathway_info), length)
+        warning(paste0("getpaths_frmEnds WARN1: No KEGGlincs KGML nodes or edges for pathway: ", pathway_check))
 
-      path_indegrees = sapply(KEGGgraph::inEdges(pathway_info), length)
+        next
 
-      if (path_outdegrees[[geneKEGG]] == 0){
+      }
+
+      kgml_mappings = KEGGlincs::expand_KEGG_mappings(kgml_file, FALSE)
+
+      kgml_edges = KEGGlincs::expand_KEGG_edges(kgml_file, kgml_mappings)
+      pathway_edges = KEGGlincs::edge_mapping_info(kgml_edges)
+
+      cat("Lookup successful. Creating edges frame.\n\n")
+
+      expanded_edges = data.frame(in_node = pathway_edges$entry1symbol,
+                                  out_node = pathway_edges$entry2symbol)
+
+      expanded_edges = cSplit(expanded_edges, "in_node", ",", "long")
+      expanded_edges = cSplit(expanded_edges, "out_node", ",", "long")
+
+      path_indegrees = nrow(expanded_edges[expanded_edges$out_node == gene_entrez,])
+      path_outdegrees = nrow(expanded_edges[expanded_edges$in_node == gene_entrez,])
+
+      if (path_outdegrees == 0){
 
         cat(paste0("Gene ", gene_entrez, " end-point for pathway: ", pathway_check, ".\n"))
 
-        if (path_indegrees[[geneKEGG]] > 0){
+        if (path_indegrees > 0){
 
-          cat(paste0("With ", path_indegrees[[geneKEGG]], " in-edges. Kept."))
-          cat("\n\n")
+          cat(paste0("With ", path_indegrees, " in-edges. Kept."))
+          cat("\n\n===\n\n")
 
           keeps = c(keeps, pathway_check)
 
         } else {
 
-          cat(paste0("With ", path_indegrees[[geneKEGG]], " in-edges. Not kept."))
-          cat("\n\n")
+          cat(paste0("With ", path_indegrees, " in-edges. Not kept."))
+          cat("\n\n===\n\n")
 
         }
 
       } else {
 
         cat(paste0("Gene ", gene_entrez, " NOT end-point for pathway: ", pathway_check, "."))
-        cat("\n\n")
+        cat("\n\n===\n\n")
       }
     }
   }
 
+  keeps = unlist(keeps)
+
   if (length(keeps) > 0){
 
-    keeps = t(as.data.frame(keeps))
-    rownames(keeps) = c()
-    colnames(keeps) = c("pathway")
+    keeps = data.frame(pathway = keeps)
+    row.names(keeps) = c()
 
     heading("getpaths_frmEnds complete. List of pathways created.")
     print(head(keeps))
-    cat("\n\n")
+    cat("\n\n\n=================\n\n")
 
     return(keeps)
 
@@ -115,7 +125,7 @@ getpaths_frmEnds = function(gene_entrez){
 
     heading("getpaths_frmEnds complete.")
     cat(paste0("Gene ", gene_entrez, " is not an end-point for any KEGG pathways."))
-    cat("\n\n\n")
+    cat("\n\n\n=================\n\n")
 
   }
 }
