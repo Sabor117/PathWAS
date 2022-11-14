@@ -15,6 +15,7 @@
 #' @param keep_routes logical. Should the function output all simple pathways, or output a list of genes.
 #' @param saveDir character. Directory for saving the KGML file downloaded from KEGG
 #' @param delete_tmps logical. After running, delete the KGML downloaded or not.
+#' @param hsapien_mart data frame. Data frame of gene names including at least entrezgene_id, external_gene_name.
 #'
 #' @examples
 #' ## Find all simple routes in pathway hsa05131 (Shigellosis) leading to end point 3606 (IL18).
@@ -28,6 +29,7 @@
 smple_paths = function(pathway,
                        gene_entrez,
                        keep_routes = TRUE,
+                       hsapien_mart,
                        saveDir = "./",
                        delete_tmps = FALSE){
 
@@ -35,8 +37,10 @@ smple_paths = function(pathway,
   cat("Come Sergei!\n\n")
 
   path_check = pathway
-  path_save_name = gsub("path:", "", path_check)
   geneKEGG = paste0("hsa:", gene_entrez)
+
+  path_save_name = gsub("path:", "", path_check)
+  path_save_file = paste0(saveDir, path_save_name, "_kegg_file.kgml")
 
   tmp_fl = tempfile() ### Necessary for retrieveKGML
 
@@ -52,12 +56,25 @@ smple_paths = function(pathway,
   #                               expandGenes = TRUE, ### expand paralogue nodes
   #                               genesOnly = FALSE) ### include connections to things which aren't genes
 
-  system(paste0("wget ", pathway_kgml, " -O ", saveDir, path_save_name, "_kegg_file.kgml"))
+  if (file.exists(paste0(path_save_file))){
 
-  pathway_info = parseKGML2DataFrame(paste0(saveDir, path_save_name, "_kegg_file.kgml"),
+    cat(paste0("KGML file for pathway exists here: ", path_save_file, "\n\n"))
+
+  } else {
+
+    cat(paste0("Downloading KGML file for pathway here: ", path_save_file, "\n\n"))
+
+    system(paste0("wget ", pathway_kgml, " -O ", saveDir, path_save_name, "_kegg_file.kgml"))
+
+  }
+
+  pathway_table = KEGGgraph::parseKGML2DataFrame(paste0(saveDir, path_save_name, "_kegg_file.kgml"),
                                      reactions = TRUE)
 
-  cat("Lookup successful.\n\n")
+  cat("Download and read successful.\n\n")
+
+  pathway_table$from_name = hsapien_mart$external_gene_name[match(gsub("hsa:", "", pathway_table$from), hsapien_mart$entrezgene_id)]
+  pathway_table$to_name = hsapien_mart$external_gene_name[match(gsub("hsa:", "", pathway_table$to), hsapien_mart$entrezgene_id)]
 
   ### Convert table into simplified table
 
