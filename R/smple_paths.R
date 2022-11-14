@@ -38,6 +38,7 @@ smple_paths = function(pathway,
 
   path_check = pathway
   geneKEGG = paste0("hsa:", gene_entrez)
+  geneNAME = hsapien_mart$external_gene_name[hsapien_mart$entrezgene_id %in% gene_entrez]
 
   path_save_name = gsub("path:", "", path_check)
   path_save_file = paste0(saveDir, path_save_name, "_kegg_file.kgml")
@@ -140,7 +141,7 @@ smple_paths = function(pathway,
 
     smple_path_n = igraph::all_simple_paths(simplified_igraph,
                                     nstart_gene,
-                                    to = which(igraph::vertex_attr(simplified_igraph)$name == geneKEGG)) ### Select vertice of end point
+                                    to = which(igraph::vertex_attr(simplified_igraph)$name == geneNAME)) ### Select vertice of end point
 
     ### Creating list of all simple paths
 
