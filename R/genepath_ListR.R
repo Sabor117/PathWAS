@@ -31,7 +31,9 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
                           write = TRUE,
                           genelistDir = getwd(),
                           hsapien_mart,
-                          transcriptFile
+                          transcriptFile,
+                          kgmlDir = getwd(),
+                          delete_tmps = FALSE
                           ) {
 
   readmart = fread(hsapien_mart,
@@ -75,7 +77,10 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     ### Obtain list of all simple pathways from KEGG pathway
 
-    all_simple_paths = smple_paths(pathway, gene, hsapien_mart)
+    all_simple_paths = smple_paths(pathway, gene,
+                                   hsapien_mart = readmart,
+                                   saveDir = kgmlDir,
+                                   delete_tmp = delete_tmps)
 
     if (length(all_simple_paths) == 0){
 
