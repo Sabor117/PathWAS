@@ -173,6 +173,14 @@ smple_paths = function(pathway,
   print(head(dir_paths))
   cat("\n\n")
 
+  if (delete_tmps == TRUE){
+
+    cat("Deleting downloaded KGML file.\n\n")
+
+    system(paste0("rm ", path_save_file))
+
+  }
+
   if (keep_routes == TRUE){
 
     return(dir_paths)
