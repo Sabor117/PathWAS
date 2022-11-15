@@ -110,7 +110,9 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
       if (length(tissue_genes_list) == 0){
 
-        heading("No genes in any tissue.")
+        heading("No genes-paths in any tissue. Only using Complete.")
+
+        tissue_genes_frame = data.frame(tissue = "Complete", gene = all_smple_paths_genes)
 
       } else {
 
