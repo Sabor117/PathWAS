@@ -114,6 +114,16 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
         tissue_genes_frame = data.frame(tissue = "Complete", gene = all_smple_paths_genes)
 
+        if (write == TRUE){
+
+          heading("Write called as true, saving as data frame.")
+
+          data.table::fwrite(tissue_genes_frame,
+                             paste0(genelistDir, geneName, "_", pathName, "_genelist.txt"),
+                             sep = "\t", quote = FALSE, row.names = FALSE)
+
+        }
+
       } else {
 
         tissue_genes_frame = c()
@@ -148,6 +158,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
                              sep = "\t", quote = FALSE, row.names = FALSE)
 
         }
+
       }
     } else { ### If no file exists but a tissue is specified:
 
