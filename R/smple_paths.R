@@ -53,6 +53,19 @@ smple_paths = function(pathway,
                                   method = "wget", ### Utilises wget method
                                   quiet = TRUE))
 
+
+  if (file.exists(paste0(path_save_file))){
+
+    cat(paste0("KGML file for pathway exists here: ", path_save_file, "\n\n"))
+
+  } else {
+
+    cat(paste0("Downloading KGML file for pathway here: ", path_save_file, "\n\n"))
+
+    system(paste0("wget ", pathway_kgml, " -O ", saveDir, path_save_name, "_kegg_file.kgml"))
+
+  }
+
   pathway_info = KEGGgraph::parseKGML2Graph(path_save_file, ### pathway kgml file
                                             expandGenes = TRUE, ### expand paralogue nodes
                                             genesOnly = FALSE) ### include connections to things which aren't genes
