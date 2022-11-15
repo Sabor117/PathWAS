@@ -110,7 +110,9 @@ smple_paths = function(pathway,
 
   connected_nodes = c(connected_nodes, geneKEGG)
 
-  simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table, directed = TRUE, vertices = NULL)
+  simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table,
+                                                    directed = TRUE,
+                                                    vertices = NULL)
 
   vertice_match = unique(data.frame(node = c(simplified_pathway_table$from, simplified_pathway_table$to),
                                     name = c(simplified_pathway_table$from_name, simplified_pathway_table$to_name)))
