@@ -150,11 +150,11 @@ smple_paths = function(pathway,
 
   if (keep_routes == TRUE){
 
-    return(dir_paths)
+    return(list(dir_paths, connected_nodes))
 
   } else {
 
-    return(unique(unlist(dir_paths)))
+    return(list(unique(unlist(dir_paths)), connected_nodes))
 
   }
 }
