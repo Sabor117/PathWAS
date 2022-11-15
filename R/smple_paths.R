@@ -65,25 +65,23 @@ smple_paths = function(pathway,
 
     cat(paste0("Downloading KGML file for pathway here: ", path_save_file, "\n\n"))
 
-    system(paste0("wget ", pathway_kgml, " -O ", saveDir, path_save_name, "_kegg_file.kgml"))
+    system(paste0("wget ", pathway_kgml, " -O ", path_save_file))
 
   }
 
-  pathway_table = KEGGgraph::parseKGML2DataFrame(paste0(saveDir, path_save_name, "_kegg_file.kgml"),
-                                     reactions = TRUE)
+  pathway_info = KEGGgraph::parseKGML2Graph(path_save_file, ### pathway kgml file
+                                            expandGenes = TRUE, ### expand paralogue nodes
+                                            genesOnly = FALSE) ### include connections to things which aren't genes
+
+  pathway_table = igraph::as_long_data_frame(igraph::igraph.from.graphNEL(pathway_info))
 
   cat("Download and read successful.\n\n")
 
-  pathway_table$from_name = hsapien_mart$external_gene_name[match(gsub("hsa:", "", pathway_table$from), hsapien_mart$entrezgene_id)]
-  pathway_table$to_name = hsapien_mart$external_gene_name[match(gsub("hsa:", "", pathway_table$to), hsapien_mart$entrezgene_id)]
-
-  ### Convert table into simplified table
-
-  last_layer = pathway_table[pathway_table$to == geneKEGG,]
+  last_layer = pathway_table[pathway_table$to_name == geneKEGG,]
 
   simplified_pathway_table = last_layer
 
-  connected_nodes = unique(last_layer$from)
+  connected_nodes = unique(last_layer$from_name)
   gene_check = connected_nodes
 
   repetitions = 0
@@ -94,10 +92,10 @@ smple_paths = function(pathway,
 
     workingNode = connected_nodes[repetitions]
 
-    new_layer = pathway_table[pathway_table$to == workingNode,]
+    new_layer = pathway_table[pathway_table$to_name == workingNode,]
     simplified_pathway_table = unique(rbind(simplified_pathway_table, new_layer))
 
-    new_nodes = unique(new_layer$from)
+    new_nodes = unique(new_layer$from_name)
     connected_nodes = unique(c(connected_nodes, new_nodes))
 
     if (length(connected_nodes) <= repetitions){
@@ -112,9 +110,7 @@ smple_paths = function(pathway,
 
   connected_nodes = c(connected_nodes, geneKEGG)
 
-  simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table,
-                                                    directed = TRUE,
-                                                    vertices = NULL)
+  simplified_igraph = igraph::graph_from_data_frame(simplified_pathway_table, directed = TRUE, vertices = NULL)
 
   vertice_match = unique(data.frame(node = c(simplified_pathway_table$from, simplified_pathway_table$to),
                                     name = c(simplified_pathway_table$from_name, simplified_pathway_table$to_name)))
@@ -140,8 +136,8 @@ smple_paths = function(pathway,
     ### To defined end point
 
     smple_path_n = igraph::all_simple_paths(simplified_igraph,
-                                    nstart_gene,
-                                    to = which(igraph::vertex_attr(simplified_igraph)$name == geneNAME)) ### Select vertice of end point
+                                            nstart_gene,
+                                            to = which(igraph::vertex_attr(simplified_igraph)$name == geneKEGG)) ### Select vertice of end point
 
     ### Creating list of all simple paths
 
