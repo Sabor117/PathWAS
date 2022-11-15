@@ -53,9 +53,9 @@ smple_paths = function(pathway,
                                   method = "wget", ### Utilises wget method
                                   quiet = TRUE))
 
-  #pathway_info = KEGGgraph::parseKGML2Graph(pathway_kgml, ### pathway kgml file
-  #                               expandGenes = TRUE, ### expand paralogue nodes
-  #                               genesOnly = FALSE) ### include connections to things which aren't genes
+  pathway_info = KEGGgraph::parseKGML2Graph(path_save_file, ### pathway kgml file
+                                            expandGenes = TRUE, ### expand paralogue nodes
+                                            genesOnly = FALSE) ### include connections to things which aren't genes
 
   if (file.exists(paste0(path_save_file))){
 
