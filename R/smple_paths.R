@@ -65,11 +65,11 @@ smple_paths = function(pathway,
 
     cat(paste0("Downloading KGML file for pathway here: ", path_save_file, "\n\n"))
 
-    system(paste0("wget ", pathway_kgml, " -O ", saveDir, path_save_name, "_kegg_file.kgml"))
+    system(paste0("wget ", pathway_kgml, " -O ", path_save_file))
 
   }
 
-  pathway_table = KEGGgraph::parseKGML2DataFrame(paste0(saveDir, path_save_name, "_kegg_file.kgml"),
+  pathway_table = KEGGgraph::parseKGML2DataFrame(path_save_file,
                                      reactions = TRUE)
 
   cat("Download and read successful.\n\n")
