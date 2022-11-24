@@ -120,6 +120,14 @@ smple_paths = function(pathway,
 
   start_genes = which(!(simplified_pathway_table$from %in% simplified_pathway_table$to))
 
+  if (length(start_genes) == 0){
+
+    warning("Error smple_paths1: Pathway contains no 'starting' genes. Simplified pathway may be a loop.")
+
+    return(connected_nodes)
+
+  }
+
   dir_paths = list() ### Empty list
 
   ### For every starter gene in pathway:
