@@ -23,6 +23,8 @@
 #' @param genelistDir directory. Directory to search for and save created data frames. Default is current working directory.
 #' @param hsapien_mart data frame. Data frame of gene names including at least entrezgene_id, external_gene_name.
 #' @param transcriptFile data frame. GTEx TPMs file read as data frame.
+#' @param kgmlDir directory. Directory to search for and save KEGG KGML files. Default is current working directory.
+#' @param delete_tmps logical. Optionally delete KGMLs after creating gene list.
 #'
 #' @import data.table
 #'
