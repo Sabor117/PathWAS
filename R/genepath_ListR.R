@@ -62,7 +62,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     } else{
 
-      stop(paste0("genepath_ListR Error1: Multiple instances of gene name found in BiomaRt. Unable to prune by HGNC. Please check: ", geneName))
+      stop(paste0("genepath_ListR Error1: Multiple instances of gene name found in BiomaRt. Unable to prune by HGNC. Please check: ", geneName, "\n-----\n\n"))
 
     }
   }
