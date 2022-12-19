@@ -38,7 +38,7 @@ smple_paths = function(pathway,
 
   path_check = pathway
   geneKEGG = paste0("hsa:", gene_entrez)
-  geneNAME = hsapien_mart$external_gene_name[hsapien_mart$entrezgene_id %in% gene_entrez]
+  geneNAME = unique(hsapien_mart$external_gene_name[hsapien_mart$entrezgene_id %in% gene_entrez])
 
   path_save_name = gsub("path:", "", path_check)
   path_save_file = paste0(saveDir, path_save_name, "_kegg_file.kgml")

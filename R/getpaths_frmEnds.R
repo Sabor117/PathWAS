@@ -20,10 +20,13 @@
 #' ## Search for pathways in KEGG which have IL18 as an end-point.
 #' getpaths_frmEnds(3606)
 #'
-#' @import KEGGREST KEGGgraph KEGGlincs splitstackshape
+#' @import KEGGREST KEGGgraph KEGGlincs splitstackshape igraph
 #'
 #' @export
-getpaths_frmEnds = function(gene_entrez){
+getpaths_frmEnds = function(gene_entrez,
+                            hsapien_mart,
+                            kgmlDir = getwd(),
+                            saveKGML = TRUE){
 
   cat(paste0("Obtaining pathways for: ", gene_entrez, ".\n"))
   cat("It's only a wafer-thin mint, sir...\n\n")
@@ -36,6 +39,14 @@ getpaths_frmEnds = function(gene_entrez){
     cat("\n\n")
 
     return()
+
+  }
+
+  gene_name = unique(hsapien_mart$external_gene_name[hsapien_mart$entrezgene_id %in% gene_entrez])
+
+  if (length(gene_name) > 1){
+
+    warning("genepath_ListR WARN1: Multiple instances of gene name found in BiomaRt.")
 
   }
 
@@ -56,54 +67,126 @@ getpaths_frmEnds = function(gene_entrez){
 
       pathway_check = gsub("path:", "", pathway_check)
 
-      kgml_file = KEGGlincs::get_KGML(pathway_check)
+      path_save_file = paste0(kgmlDir, pathway_check, "_kegg_file.kgml")
 
-      if (is.na(kgml_file)){
+      tmp_fl = tempfile() ### Necessary for retrieveKGML
 
-        warning(paste0("getpaths_frmEnds WARN1: No KEGGlincs KGML nodes or edges for pathway: ", pathway_check))
+      pathway_kgml = try(KEGGgraph::retrieveKGML(pathway_check, ### Search for given pathway
+                                                 organism = "hsa", ### Organism
+                                                 destfile = tmp_fl, ### This is necessary for some reason
+                                                 method = "wget", ### Utilises wget method
+                                                 quiet = TRUE))
 
-        next
+      if (file.exists(paste0(path_save_file))){
 
-      }
-
-      kgml_mappings = KEGGlincs::expand_KEGG_mappings(kgml_file, FALSE)
-
-      kgml_edges = KEGGlincs::expand_KEGG_edges(kgml_file, kgml_mappings)
-      pathway_edges = KEGGlincs::edge_mapping_info(kgml_edges)
-
-      cat("Lookup successful. Creating edges frame.\n\n")
-
-      expanded_edges = data.frame(in_node = pathway_edges$entry1symbol,
-                                  out_node = pathway_edges$entry2symbol)
-
-      expanded_edges = cSplit(expanded_edges, "in_node", ",", "long")
-      expanded_edges = cSplit(expanded_edges, "out_node", ",", "long")
-
-      path_indegrees = nrow(expanded_edges[expanded_edges$out_node == gene_entrez,])
-      path_outdegrees = nrow(expanded_edges[expanded_edges$in_node == gene_entrez,])
-
-      if (path_outdegrees == 0){
-
-        cat(paste0("Gene ", gene_entrez, " end-point for pathway: ", pathway_check, ".\n"))
-
-        if (path_indegrees > 0){
-
-          cat(paste0("With ", path_indegrees, " in-edges. Kept."))
-          cat("\n\n===\n\n")
-
-          keeps = c(keeps, pathway_check)
-
-        } else {
-
-          cat(paste0("With ", path_indegrees, " in-edges. Not kept."))
-          cat("\n\n===\n\n")
-
-        }
+        cat(paste0("KGML file for pathway exists here: ", path_save_file, "\n\n"))
 
       } else {
 
+        cat(paste0("Downloading KGML file for pathway here: ", path_save_file, "\n\n"))
+
+        system(paste0("wget ", pathway_kgml, " -O ", path_save_file))
+
+      }
+
+      pathway_info = KEGGgraph::parseKGML2Graph(path_save_file, ### pathway kgml file
+                                                expandGenes = TRUE, ### expand paralogue nodes
+                                                genesOnly = FALSE) ### include connections to things which aren't genes
+
+      pathway_table = igraph::as_long_data_frame(igraph::igraph.from.graphNEL(pathway_info))
+
+      path_indegrees = nrow(pathway_table[pathway_table$to_name == geneKEGG,])
+      path_outdegrees = nrow(pathway_table[pathway_table$from_name == geneKEGG,])
+
+      if (!(path_outdegrees == 0)){
+
         cat(paste0("Gene ", gene_entrez, " NOT end-point for pathway: ", pathway_check, "."))
-        cat("\n\n===\n\n")
+        cat("\n\n============\n\n")
+
+      } else {
+
+        cat(paste0("Gene ", gene_entrez, " end-point for pathway: ", pathway_check, ".\n"))
+
+        if (path_indegrees == 0){
+
+          cat(paste0("With ", path_indegrees, " in-edges. Not kept."))
+          cat("\n\n")
+
+        } else if (path_indegrees > 0){
+
+          cat(paste0("With ", path_indegrees, " in-edges."))
+          cat("\n\n")
+          cat("Looking up KEGGlincs.\n\n")
+
+          kgml_file = KEGGlincs::get_KGML(pathway_check)
+
+          if (all(is.na(kgml_file@nodes))){
+
+            warning(paste0("getpaths_frmEnds WARN1: No KEGGlincs KGML nodes or edges for pathway: ", pathway_check))
+
+            next
+
+          }
+
+          kgml_mappings = KEGGlincs::expand_KEGG_mappings(kgml_file, FALSE)
+
+          complex_frame = kgml_mappings[grepl(gene_name, kgml_mappings$LABEL),]
+          complex_status = any(grepl("Complex", complex_frame$LABEL))
+
+          if (complex_status == FALSE){
+
+            cat(paste0("Not a complex. VALID END POINT. Kept.\n\n============\n\n"))
+
+            keeps = c(keeps, pathway_check)
+
+          } else {
+
+            complex_genes = complex_frame$LABEL[grepl("Complex", complex_frame$LABEL)][[1]]
+
+            cat(paste0("End-point found as ", complex_genes, ". Confirming validity.\n\n"))
+
+            complex_genes = unlist(strsplit(gsub(" Complex", "", complex_genes), ":"))
+
+            complex_entrez_ids = unique(hsapien_mart$entrezgene_id[hsapien_mart$external_gene_name %in% complex_genes])
+
+            complex_check = c()
+
+            for (num_complex in 1:length(complex_entrez_ids)){
+
+              currKEGG = paste0("hsa:", complex_entrez_ids[num_complex])
+
+              path_outdegrees = nrow(pathway_table[pathway_table$from_name == currKEGG,])
+
+              if (path_outdegrees > 0){
+
+                complex_check = c(complex_check, TRUE)
+
+              } else {
+
+                complex_check = c(complex_check, FALSE)
+
+              }
+            }
+
+            if (any(complex_check)){
+
+              cat(paste0("Complex has external edges. NOT VALID END POINT.\n\n============\n\n"))
+
+            } else {
+
+              cat(paste0("Complex genes have no external edges. VALID END POINT. Kept\n\n============\n\n"))
+
+              keeps = c(keeps, pathway_check)
+
+            }
+          }
+        }
+      }
+
+      if (saveKGML == FALSE){
+
+        system(paste0("rm ", path_save_file))
+
       }
     }
   }
