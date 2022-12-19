@@ -1,7 +1,7 @@
 # PathWAS
 
-:arrow\_right: ASHG 2021 poster is available
-[here](doc/).
+:arrow\_right: ASHG 2022 poster is available
+[here](Doc/PathWAS_ASHG_2022_poster.pdf).
 
 ## Contents
 
