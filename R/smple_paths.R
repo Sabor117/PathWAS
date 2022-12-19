@@ -23,7 +23,7 @@
 #'
 #' smple_paths(pathway = path:hsa05131, gene_entrez = 3606, keep_routes = FALSE)
 #'
-#' @import KEGGgraph igraph
+#' @import KEGGgraph igraph KEGGlincs
 #'
 #' @export
 smple_paths = function(pathway,
@@ -53,6 +53,8 @@ smple_paths = function(pathway,
                                   method = "wget", ### Utilises wget method
                                   quiet = TRUE))
 
+  ### Checks for presence of existing KGML
+  ### Either reads existing file or writes new one
 
   if (file.exists(paste0(path_save_file))){
 
@@ -77,9 +79,7 @@ smple_paths = function(pathway,
   last_layer = pathway_table[pathway_table$to_name == geneKEGG,]
 
   simplified_pathway_table = last_layer
-
   connected_nodes = unique(last_layer$from_name)
-  gene_check = connected_nodes
 
   repetitions = 0
 
@@ -99,6 +99,87 @@ smple_paths = function(pathway,
 
       break
 
+    }
+  }
+
+  ### Simplified table of nodes created
+  ### Checking for presence of complexes within nodes
+
+  connected_nodes_entrez = gsub("hsa:", "", connected_nodes)
+  connected_gene_names = data.frame(entrez = connected_nodes_entrez,
+                                    names = NA)
+
+  for (num_connect in 1:nrow(connected_gene_names)){
+
+    connected_gene_names$names[num_connect] = ifelse(length(unique(hsapien_mart$external_gene_name[hsapien_mart$entrezgene_id %in% connected_gene_names$entrez[num_connect]])) == 0,
+                                                     NA,
+                                                     unique(hsapien_mart$external_gene_name[hsapien_mart$entrezgene_id %in% connected_gene_names$entrez[num_connect]]))
+  }
+
+  lincs_kgml_file = try(KEGGlincs::get_KGML(path_check))
+  lincs_kgml_mappings = KEGGlincs::expand_KEGG_mappings(lincs_kgml_file, FALSE)
+
+  complexes_frame = lincs_kgml_mappings[grepl("Complex", lincs_kgml_mappings$LABEL),]
+
+  connected_gene_names$complexed = NA
+
+  for (complex_check in 1:nrow(connected_gene_names)){
+
+    connected_gene_names$complexed[complex_check] = any(grepl(connected_gene_names$names[complex_check], complexes_frame$LABEL))
+
+  }
+
+  if (any(connected_gene_names$complexed)){
+
+    cat(paste0("The following genes are in complexes: ",
+               paste(connected_gene_names$names[connected_gene_names$complexed == TRUE], collapse = " "),
+               "\n\n"
+    ))
+
+    recheck_list = na.exclude(connected_gene_names[connected_gene_names$complexed == TRUE,])
+    recheck_list = paste0("hsa:", recheck_list$entrez)
+
+    for (num_recheck in 1:length(recheck_list)){
+
+      last_layer = pathway_table[pathway_table$to_name == recheck_list[num_recheck],]
+
+      cat(paste0("Checking gene ", recheck_list[num_recheck], " for complexed links.\n\n"))
+
+      simplified_pathway_table_check = last_layer
+      connected_nodes_check = unique(last_layer$from_name)
+
+      repetitions = 0
+
+      repeat {
+
+        repetitions = repetitions + 1
+
+        workingNode = connected_nodes_check[repetitions]
+
+        new_layer = pathway_table[pathway_table$to_name == workingNode,]
+        simplified_pathway_table_check = unique(rbind(simplified_pathway_table_check, new_layer))
+
+        new_nodes = unique(new_layer$from_name)
+        connected_nodes_check = unique(c(connected_nodes_check, new_nodes))
+
+        if (length(connected_nodes_check) <= repetitions){
+
+          break
+
+        }
+      }
+
+      if (!(is.na(connected_nodes_check))){
+
+        connected_nodes = unique(c(connected_nodes, connected_nodes_check))
+
+      }
+
+      if (!(all(is.na(simplified_pathway_table_check$from)))){
+
+        simplified_pathway_table = unique(rbind(simplified_pathway_table, simplified_pathway_table_check))
+
+      }
     }
   }
 

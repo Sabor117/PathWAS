@@ -110,7 +110,7 @@ getpaths_frmEnds = function(gene_entrez,
         if (path_indegrees == 0){
 
           cat(paste0("With ", path_indegrees, " in-edges. Not kept."))
-          cat("\n\n")
+          cat("\n\n============\n\n")
 
         } else if (path_indegrees > 0){
 
@@ -118,7 +118,15 @@ getpaths_frmEnds = function(gene_entrez,
           cat("\n\n")
           cat("Looking up KEGGlincs.\n\n")
 
-          kgml_file = KEGGlincs::get_KGML(pathway_check)
+          kgml_file = try(KEGGlincs::get_KGML(pathway_check))
+
+          if (!(class(kgml_file) == "KEGGPathway")){
+
+            warning(paste0("getpaths_frmEnds WARN2: No KEGGlincs download error for: ", pathway_check, " with end-point: ",gene_entrez))
+
+            next
+
+          }
 
           if (all(is.na(kgml_file@nodes))){
 
