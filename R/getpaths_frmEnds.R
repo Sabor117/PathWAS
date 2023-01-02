@@ -138,7 +138,7 @@ getpaths_frmEnds = function(gene_entrez,
 
           kgml_mappings = KEGGlincs::expand_KEGG_mappings(kgml_file, FALSE)
 
-          complex_frame = kgml_mappings[grepl(gene_name, kgml_mappings$LABEL),]
+          complex_frame = kgml_mappings[grepl(gene_entrez, kgml_mappings$entrySYMBOL),]
           complex_status = any(grepl("Complex", complex_frame$LABEL))
 
           if (complex_status == FALSE){
