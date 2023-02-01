@@ -27,7 +27,7 @@
 #' omics_EffAllCol = "Effect_Allele", omics_OthAllCol = "Other_Allele", clumped_SNPCol = "rsid", clumped_EffAllCol = "a1",
 #' clumped_OthAllCol = "a0")
 #'
-#' @import dplyr
+#' @import dplyr stringr
 #'
 #' @export
 omics_MungeR = function(endpoint_omics,

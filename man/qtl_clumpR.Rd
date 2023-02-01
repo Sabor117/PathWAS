@@ -13,7 +13,9 @@ qtl_clumpR(
   all_snps_genecol = "gene_ensembl",
   qtl_gene_identifier = "ensembl_gene_id",
   bfile,
-  plink_bin
+  plink_bin,
+  MAF_filter = NA,
+  MAF_col = "MAF"
 )
 }
 \arguments{
@@ -39,6 +41,8 @@ if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from 
 \item{bfile}{character. Location of the Plink files of your reference genotype.}
 
 \item{plink_bin}{character. Location of the local version of the plink executable.}
+
+\item{MAF_filter}{numeric. Value for MAF filter for the clumping. Default is NA and does not filter by MAF.}
 }
 \description{
 qtl_clumpR returns two outputs: a compiled data frame of SNPs for a given pathway along with selected clumped SNPs
