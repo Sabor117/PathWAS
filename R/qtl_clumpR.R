@@ -48,6 +48,7 @@
 #' if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from BioMart.
 #' @param bfile character. Location of the Plink files of your reference genotype.
 #' @param plink_bin character. Location of the local version of the plink executable.
+#' @param MAF_filter numeric. Value for MAF filter for the clumping. Default is NA and does not filter by MAF.
 #'
 #' @import data.table ieugwasr
 #'
@@ -59,7 +60,9 @@ qtl_clumpR = function(end_point, path_select,
                         all_snps_genecol = "gene_ensembl",
                         qtl_gene_identifier = "ensembl_gene_id",
                         bfile,
-                        plink_bin
+                        plink_bin,
+                        MAF_filter = NA,
+                        MAF_col = "MAF"
                         ) {
 
   biomart_map = data.table::fread(biomart_map,
@@ -72,6 +75,12 @@ qtl_clumpR = function(end_point, path_select,
   path_genes_identifier = unique(genelist_frame[,qtl_gene_identifier])
 
   path_snplist = all_snps[all_snps[,all_snps_genecol] %in% path_genes_identifier,]
+
+  if (!(is.na(MAF_filter))){
+
+    path_snplist = path_snplist[path_snplist[,MAF_col] > MAF_filter,]
+
+  }
 
   repeat_snps = path_snplist$snpid[duplicated(path_snplist$snpid)]
   repeat_snps_info = path_snplist[path_snplist$snpid %in% repeat_snps,]
