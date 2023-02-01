@@ -4,7 +4,14 @@
 \alias{smple_paths}
 \title{Get all simple paths from KEGG pathway}
 \usage{
-smple_paths(pathway, gene_entrez, keep_routes = TRUE)
+smple_paths(
+  pathway,
+  gene_entrez,
+  keep_routes = TRUE,
+  hsapien_mart,
+  saveDir = "./",
+  delete_tmps = FALSE
+)
 }
 \arguments{
 \item{pathway}{character. KEGG pathway ID (e.g.: path:hsa05131).}
@@ -12,6 +19,12 @@ smple_paths(pathway, gene_entrez, keep_routes = TRUE)
 \item{gene_entrez}{character or numeric. Entrez gene ID.}
 
 \item{keep_routes}{logical. Should the function output all simple pathways, or output a list of genes.}
+
+\item{hsapien_mart}{data frame. Data frame of gene names including at least entrezgene_id, external_gene_name.}
+
+\item{saveDir}{character. Directory for saving the KGML file downloaded from KEGG}
+
+\item{delete_tmps}{logical. After running, delete the KGML downloaded or not.}
 }
 \description{
 smple_paths returns a list of all simple (one-route) pathways through a larger/more complex bioogical pathway to a chosen end point.

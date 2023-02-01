@@ -53,14 +53,16 @@
 #'
 #' @export
 qtl_clumpR = function(end_point, path_select,
-                        path_gene_list,
-                        biomart_map,
-                        all_snps,
-                        all_snps_genecol = "gene_ensembl",
-                        qtl_gene_identifier = "ensembl_gene_id",
-                        bfile,
-                        plink_bin
-                        ) {
+                      path_gene_list,
+                      biomart_map,
+                      all_snps,
+                      all_snps_genecol = "gene_ensembl",
+                      qtl_gene_identifier = "ensembl_gene_id",
+                      bfile,
+                      plink_bin,
+                      MAF_filter = NA,
+                      MAF_col = "MAF"
+) {
 
   biomart_map = data.table::fread(biomart_map,
                                   data.table = FALSE)
@@ -72,6 +74,12 @@ qtl_clumpR = function(end_point, path_select,
   path_genes_identifier = unique(genelist_frame[,qtl_gene_identifier])
 
   path_snplist = all_snps[all_snps[,all_snps_genecol] %in% path_genes_identifier,]
+
+  if (!(is.na(MAF_filter))){
+
+    path_snplist = path_snplist[path_snplist[,MAF_col] > MAF_filter,]
+
+  }
 
   repeat_snps = path_snplist$snpid[duplicated(path_snplist$snpid)]
   repeat_snps_info = path_snplist[path_snplist$snpid %in% repeat_snps,]

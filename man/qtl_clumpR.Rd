@@ -13,7 +13,9 @@ qtl_clumpR(
   all_snps_genecol = "gene_ensembl",
   qtl_gene_identifier = "ensembl_gene_id",
   bfile,
-  plink_bin
+  plink_bin,
+  MAF_filter = NA,
+  MAF_col = "MAF"
 )
 }
 \arguments{

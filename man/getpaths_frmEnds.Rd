@@ -4,7 +4,7 @@
 \alias{getpaths_frmEnds}
 \title{Get (KEGG) biological pathways from end point}
 \usage{
-getpaths_frmEnds(gene_entrez)
+getpaths_frmEnds(gene_entrez, hsapien_mart, kgmlDir = getwd(), saveKGML = TRUE)
 }
 \arguments{
 \item{gene}{character or numeric (Entrez ID)}
