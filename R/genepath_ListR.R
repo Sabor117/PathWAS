@@ -50,7 +50,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
   if (length(geneName) > 1){
 
-    warning("genepath_ListR WARN1: Multiple instances of gene name found in BiomaRt. Attempting to prune by HGNC symbol.")
+    warning(paste0("genepath_ListR WARN1: Multiple instances of gene name (", geneName, ") found in BiomaRt. Attempting to prune by HGNC symbol."))
 
     cat(paste0("\n\nNames for gene found:\n\n"))
     print(geneName)
