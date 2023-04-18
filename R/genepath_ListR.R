@@ -25,6 +25,8 @@
 #' @param transcriptFile data frame. GTEx TPMs file read as data frame.
 #' @param kgmlDir directory. Directory to search for and save KEGG KGML files. Default is current working directory.
 #' @param delete_tmps logical. Optionally delete KGMLs after creating gene list.
+#' @param cut_paths numeric. Cut-off for length of simple paths (default is -1 for all_smple_paths). Add threshold to reduce computing time.
+#'
 #'
 #' @import data.table
 #'
@@ -35,7 +37,9 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
                           hsapien_mart,
                           transcriptFile,
                           kgmlDir = getwd(),
-                          delete_tmps = FALSE
+                          delete_tmps = FALSE,
+                          cut_paths = -1,
+                          keep_routes = TRUE
                           ) {
 
   readmart = fread(hsapien_mart,
@@ -82,7 +86,9 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
     all_simple_paths = smple_paths(pathway, gene,
                                    hsapien_mart = readmart,
                                    saveDir = kgmlDir,
-                                   delete_tmp = delete_tmps)
+                                   delete_tmp = delete_tmps,
+                                   cut_paths = cut_paths,
+                                   keep_routes = keep_routes)
 
     if (length(all_simple_paths) == 0){
 

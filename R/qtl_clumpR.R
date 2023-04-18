@@ -77,6 +77,12 @@ qtl_clumpR = function(end_point, path_select,
 
   if (!(is.na(MAF_filter))){
 
+    if (!(MAF_col %in% colnames(path_snplist))){
+
+      stop("Please enter MAF column name if you wish to filter by MAF.")
+
+    }
+
     path_snplist = path_snplist[path_snplist[,MAF_col] > MAF_filter,]
 
   }

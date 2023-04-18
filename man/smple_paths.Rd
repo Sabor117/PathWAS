@@ -10,7 +10,8 @@ smple_paths(
   keep_routes = TRUE,
   hsapien_mart,
   saveDir = "./",
-  delete_tmps = FALSE
+  delete_tmps = FALSE,
+  cut_paths = -1
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ smple_paths(
 \item{saveDir}{character. Directory for saving the KGML file downloaded from KEGG}
 
 \item{delete_tmps}{logical. After running, delete the KGML downloaded or not.}
+
+\item{cut_paths}{numeric. Cut-off for length of simple paths (default is -1 for all_smple_paths). Add threshold to reduce computing time.}
 }
 \description{
 smple_paths returns a list of all simple (one-route) pathways through a larger/more complex bioogical pathway to a chosen end point.

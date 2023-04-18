@@ -13,7 +13,9 @@ genepath_ListR(
   hsapien_mart,
   transcriptFile,
   kgmlDir = getwd(),
-  delete_tmps = FALSE
+  delete_tmps = FALSE,
+  cut_paths = -1,
+  keep_routes = TRUE
 )
 }
 \arguments{
@@ -32,6 +34,8 @@ genepath_ListR(
 \item{kgmlDir}{directory. Directory to search for and save KEGG KGML files. Default is current working directory.}
 
 \item{delete_tmps}{logical. Optionally delete KGMLs after creating gene list.}
+
+\item{cut_paths}{numeric. Cut-off for length of simple paths (default is -1 for all_smple_paths). Add threshold to reduce computing time.}
 }
 \description{
 genepath_ListR returns a data frame of genes for a given pathway in each tissue available in GTEx TPMs.
