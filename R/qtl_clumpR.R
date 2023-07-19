@@ -61,7 +61,8 @@ qtl_clumpR = function(end_point, path_select,
                       bfile,
                       plink_bin,
                       MAF_filter = NA,
-                      MAF_col = "MAF"
+                      MAF_col = "MAF",
+                      def_tmpDir = tempdir()
 ) {
 
   biomart_map = data.table::fread(biomart_map,
@@ -114,7 +115,8 @@ qtl_clumpR = function(end_point, path_select,
 
     clumped_snps = ieugwasr::ld_clump(dat = path_snplist,
                                       bfile = bfile,
-                                      plink_bin = plink_bin
+                                      plink_bin = plink_bin,
+                                      def_tmpDir = def_tmpDir
     )
 
   } else {
@@ -128,7 +130,8 @@ qtl_clumpR = function(end_point, path_select,
 
       curr_clumped_snps = ieugwasr::ld_clump(dat = path_snplist_chrom,
                                              bfile = gsub("%%%", chrom, bfile),
-                                             plink_bin = plink_bin
+                                             plink_bin = plink_bin,
+                                             def_tmpDir = def_tmpDir
       )
 
       clumped_snps = rbind(clumped_snps, curr_clumped_snps)
