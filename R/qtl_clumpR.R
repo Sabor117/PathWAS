@@ -113,7 +113,7 @@ qtl_clumpR = function(end_point, path_select,
 
   if (!(grepl("%%%", bfile))){
 
-    clumped_snps = ieugwasr::ld_clump(dat = path_snplist,
+    clumped_snps = pathwas_ld_clump(dat = path_snplist,
                                       bfile = bfile,
                                       plink_bin = plink_bin,
                                       def_tmpDir = def_tmpDir
@@ -128,7 +128,7 @@ qtl_clumpR = function(end_point, path_select,
       path_snplist_chrom = data.frame(path_snplist[path_snplist$chr == chrom,])
       colnames(path_snplist_chrom)[colnames(path_snplist_chrom) == "p"] = "pval"
 
-      curr_clumped_snps = ieugwasr::ld_clump(dat = path_snplist_chrom,
+      curr_clumped_snps = pathwas_ld_clump(dat = path_snplist_chrom,
                                              bfile = gsub("%%%", chrom, bfile),
                                              plink_bin = plink_bin,
                                              def_tmpDir = def_tmpDir
