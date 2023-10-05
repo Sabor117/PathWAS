@@ -48,6 +48,9 @@
 #' if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from BioMart.
 #' @param bfile character. Location of the Plink files of your reference genotype.
 #' @param plink_bin character. Location of the local version of the plink executable.
+#' @param MAF_filter logical. Define if you want to filter your clumped SNPs by MAF.
+#' @param MAF_col character. Column name or number for the data frame which contains the MAF for filtering SNPs.
+#' @param def_tmpDir character. Local directory for saving temporary files for clumping - may prevent some crashes.
 #'
 #' @import data.table ieugwasr
 #'

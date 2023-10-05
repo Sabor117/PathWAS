@@ -4,10 +4,12 @@
 #' The SNP with the lowest p-value is retained.
 #'
 #' @details
+#' FOR PATHWAS PURPOSES:
 #' All functions here are copied directly from the ieugwasr package (https://github.com/MRCIEU/ieugwasr).
 #' They have been slightly edited to allow for definition of directory for storing temporary files.
 #' All other functionality remains unchanged.
 #'
+#' ORIGINAL DESCRIPTION STARTS HERE:
 #' This function interacts with the OpenGWAS API, which houses LD reference panels
 #' for the 5 super-populations in the 1000 genomes reference panel.
 #' It includes only bi-allelic SNPs with MAF > 0.01, so it's quite possible that
