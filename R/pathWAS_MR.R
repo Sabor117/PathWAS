@@ -39,8 +39,11 @@
 #' @param geneCol character. Name or number of column containing the name of the gene for each SNP in the QTL data. Default is "gene". Ensure the format of the name is the same as your gene list.
 #' @param omics_snps data frame. Summary stats of end-point omcis, now including FLIP column frm omics_MungeR
 #' @param omics_SNPCol character. Name/number of column containing the SNP ID in the omics data frame.
+#' @param clumped_SNPCol character. Name/number of column containing the SNP ID in the omics data frame.
 #' @param omics_BetaCol character. Name/number of column containing the effect size in the omics data frame.
 #' @param omics_SECol character. Name/number of column containing the standard error in the omics data frame.
+#' @param clumped_BetaCol character. Name/number of column containing the effect size in the clumped SNPs data frame.
+#' @param clumped_SECol character. Name/number of column containing the standard error in the clumped SNPs data frame.
 #' @param save_MRInput logical. Should the function save the input for the MR? Default is FALSE
 #' @param save_MRInLoc character. If save_MRInput == TRUE, then provide a directory to save the .rds file to.
 #' @param save_MROutput logical. Should the function save the output from the MR (as well as output it from the function)?
@@ -59,6 +62,7 @@
 #' @export
 pathWAS_MR = function(genelist,
                          clumped_snps,
+                         clumped_SNPCol = "rsid", clumped_BetaCol = "beta1", clumped_SECol = "se",
                          qtl_sumstats,
                          geneCol = "gene",
                          omics_snps,
@@ -113,11 +117,11 @@ pathWAS_MR = function(genelist,
 
   if (verbose == TRUE){
 
-    missing_clumped = clumped_snps[!(clumped_snps$rsid %in% omics_snps[, omics_SNPCol]),]
-    missing_omics = omics_snps[!(omics_snps[, omics_SNPCol] %in% clumped_snps$rsid),]
+    missing_clumped = clumped_snps[!(clumped_snps[, clumped_SNPCol] %in% omics_snps[, omics_SNPCol]),]
+    missing_omics = omics_snps[!(omics_snps[, omics_SNPCol] %in% clumped_snps[, clumped_SNPCol]),]
 
     cat(paste0("\nThe following SNPs were in the clumped SNPs and not the omics:\n\n"))
-    print(missing_clumped$rsid)
+    print(missing_clumped[, clumped_SNPCol])
     cat("\n\n")
     cat(paste0("\nThe following SNPs were in the omics SNPs and not the clumped:\n\n"))
     print(missing_omics[, omics_SNPCol])
@@ -125,10 +129,10 @@ pathWAS_MR = function(genelist,
 
   }
 
-  clumped_snps = clumped_snps[clumped_snps$rsid %in% omics_snps[, omics_SNPCol],]
-  omics_snps = omics_snps[omics_snps[, omics_SNPCol] %in% clumped_snps$rsid,]
+  clumped_snps = clumped_snps[clumped_snps[, clumped_SNPCol] %in% omics_snps[, omics_SNPCol],]
+  omics_snps = omics_snps[omics_snps[, omics_SNPCol] %in% clumped_snps[, clumped_SNPCol],]
 
-  clumped_snplist = unique(clumped_snps$rsid)
+  clumped_snplist = unique(clumped_snps[, clumped_SNPCol])
   path_cohort_ovgenes = unique(genelist[!(genelist %in% end_point)])
 
   snp_beta_matrix = data.frame(matrix(ncol = (length(path_cohort_ovgenes)), nrow = 0))
@@ -192,8 +196,8 @@ pathWAS_MR = function(genelist,
 
       if (exists("all_gene_sumstats")){
 
-        snp_gene_beta = all_gene_sumstats$beta1[all_gene_sumstats$rsid == currSnp]
-        snp_gene_se = all_gene_sumstats$se[all_gene_sumstats$rsid == currSnp]
+        snp_gene_beta = all_gene_sumstats[, clumped_BetaCol][all_gene_sumstats[, clumped_SNPCol] == currSnp]
+        snp_gene_se = all_gene_sumstats[, clumped_SECol][all_gene_sumstats[, clumped_SNPCol] == currSnp]
 
       }
 

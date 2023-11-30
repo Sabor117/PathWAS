@@ -27,7 +27,7 @@ flip.allele = function(ref_ld,alt_ld,ref_gen,alt_gen) {
 
       output = 1
 
-    }	else if (ref_ld == alt_gen & alt_ld == ref_gen){
+    }	else if (ref_ld_switched == alt_gen & alt_ld_switched == ref_gen){
 
       ### If new switched alleles are opposites, return -1
 

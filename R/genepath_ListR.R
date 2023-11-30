@@ -75,7 +75,7 @@ genepath_ListR = function(gene, pathway, tissue = NULL,
 
     ### If no existing combination file is found, then it will create one:
 
-    heading("No existing gene list/s for pathway + gene combo. Making you one now.")
+    heading(paste0("No existing gene list/s for pathway + gene combo (", pathName, " + ", geneName, "). Making you one now."))
 
     ### Obtain list of genes from KEGG for pathway
 
