@@ -1,5 +1,5 @@
 #' @export
-flip.allele = function(ref_ld,alt_ld,ref_gen,alt_gen) {
+flip.allele = function(ref_ld, alt_ld, ref_gen, alt_gen) {
 
   ### Initialise variable for each row
 
