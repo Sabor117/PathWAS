@@ -1,6 +1,10 @@
 #' @export
 flip.allele = function(ref_ld,alt_ld,ref_gen,alt_gen) {
 
+  ### Initialise variable for each row
+
+  output = 0
+
   if (ref_ld == ref_gen & alt_ld == alt_gen){
 
     ### If alleles in both files match, return 1
