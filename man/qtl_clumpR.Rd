@@ -15,7 +15,8 @@ qtl_clumpR(
   bfile,
   plink_bin,
   MAF_filter = NA,
-  MAF_col = "MAF"
+  MAF_col = "MAF",
+  def_tmpDir = tempdir()
 )
 }
 \arguments{
@@ -41,6 +42,12 @@ if the QTLs use UniProt or Ensembl IDs, then this should be the equivalent from 
 \item{bfile}{character. Location of the Plink files of your reference genotype.}
 
 \item{plink_bin}{character. Location of the local version of the plink executable.}
+
+\item{MAF_filter}{logical. Define if you want to filter your clumped SNPs by MAF.}
+
+\item{MAF_col}{character. Column name or number for the data frame which contains the MAF for filtering SNPs.}
+
+\item{def_tmpDir}{character. Local directory for saving temporary files for clumping - may prevent some crashes.}
 }
 \description{
 qtl_clumpR returns two outputs: a compiled data frame of SNPs for a given pathway along with selected clumped SNPs

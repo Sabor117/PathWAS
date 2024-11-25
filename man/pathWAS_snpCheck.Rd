@@ -27,6 +27,3 @@ information from the table can cause errors in code. As the rationable behind wh
 this function is designed to use the MR input object used in mr_mvlasso() and find the SNPs which cause
 the erroneous output, so that the mr_mvlasso() function can be run without those SNPs in the first place.
 }
-\examples{
-
-}

@@ -1,3 +1,5 @@
+#' @import stringr
+#'
 #' @export
 switch.strand = function(allele){
 

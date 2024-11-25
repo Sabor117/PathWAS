@@ -7,6 +7,9 @@
 pathWAS_MR(
   genelist,
   clumped_snps,
+  clumped_SNPCol = "rsid",
+  clumped_BetaCol = "beta1",
+  clumped_SECol = "se",
   qtl_sumstats,
   geneCol = "gene",
   omics_snps,
@@ -28,6 +31,12 @@ pathWAS_MR(
 \item{genelist}{list. List of genes extracted from database for your pathway which overlap with your QTL data.}
 
 \item{clumped_snps}{data frame. The data frame of clumped SNPs output from qtl_clumpR.}
+
+\item{clumped_SNPCol}{character. Name/number of column containing the SNP ID in the omics data frame.}
+
+\item{clumped_BetaCol}{character. Name/number of column containing the effect size in the clumped SNPs data frame.}
+
+\item{clumped_SECol}{character. Name/number of column containing the standard error in the clumped SNPs data frame.}
 
 \item{qtl_sumstats}{character. File location for the QTLs used (either divided by gene or complete data).}
 
